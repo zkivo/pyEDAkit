@@ -1,4 +1,6 @@
-def with_std(data, zero_mean=True):
+import numpy as np
+
+def with_std(data : np.ndarray, zero_mean=True):
     pass
 
 def with_range():
