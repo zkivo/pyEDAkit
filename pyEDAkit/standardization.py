@@ -1,3 +1,4 @@
+from ast import Lambda
 import numpy as np
 
 def with_std_dev(data : np.ndarray, zero_mean=True):
@@ -30,5 +31,16 @@ def with_range(data : np.ndarray, bounded=True):
         z = data / (max - min)
     return z
 
-def with_sphering():
-    pass
+def sphering(data : np.ndarray):
+    n_samples, p = data.shape
+    data_mean = np.mean(data, axis=0)
+    data_centered = data - data_mean
+    S = np.dot(data_centered.T, data_centered) / (n_samples - 1)
+    eigenvalues, Q = np.linalg.eigh(S)
+    lambda_inv_square = np.diag(1.0 / np.sqrt(eigenvalues))
+    # Apply the transformation for each observation
+    Z = []
+    for i in range(n_samples):
+        Z_i = np.dot(lambda_inv_square, np.dot(Q.T, data_centered[i,:]))
+        Z.append(Z_i)
+    return np.array(Z)

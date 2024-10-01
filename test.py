@@ -20,8 +20,10 @@ def scatter(x, y, title='Title'):
 df = pd.read_csv("data/iris/iris.data")
 df.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
 
-z_scores_zero = eda_std.with_std_dev(df[['sepal_length', 'petal_length']].to_numpy(), zero_mean=True)
-z_scores_not_zero = eda_std.with_std_dev(df[['sepal_length', 'petal_length']].to_numpy(), zero_mean=False)
+sp_length = df[['sepal_length', 'petal_length']].to_numpy()
+
+z_scores_zero = eda_std.with_std_dev(sp_length, zero_mean=True)
+z_scores_not_zero = eda_std.with_std_dev(sp_length, zero_mean=False)
 
 scatter(df['sepal_length'], df['petal_length'], title='Original data')
 scatter(z_scores_zero[:, 0], z_scores_zero[:, 1], title='z_scores with mean 0')
@@ -29,5 +31,10 @@ scatter(z_scores_not_zero[:, 0], z_scores_not_zero[:, 1], title='z_scores with N
 
 print(np.std(z_scores_zero, axis=0), np.mean(z_scores_zero, axis=0))
 print(np.std(z_scores_not_zero, axis=0), np.mean(z_scores_not_zero, axis=0))
+
+Z = eda_std.sphering(sp_length)
+
+scatter(Z[:,0], Z[:,1], title='Shering')
+
 
 plt.show()
