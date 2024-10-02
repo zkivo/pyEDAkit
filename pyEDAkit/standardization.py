@@ -16,15 +16,15 @@ def with_std_dev(data : np.ndarray, zero_mean=True):
         z_scores = data / stds_data
     return z_scores
 
-def with_range(data : np.ndarray, bounded=True):
-    # With the bounded variable set as True, the data values
+
+def min_max_norm(data : np.ndarray, zero_one=True):
+    # min-max normalization
+    # With the zero_one variable set as True, the data values
     # are between 0 and 1, with 0 and 1 included.
-    # (also called min-max normalization).
     z  = None
     min = np.min(data, axis=0)
     max = np.max(data, axis=0)
-    print(min, max, max - min)
-    if bounded:
+    if zero_one:
         z = (data - min) / (max - min)
     else:
         z = data / (max - min)
