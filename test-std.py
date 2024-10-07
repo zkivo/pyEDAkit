@@ -21,15 +21,15 @@ def scatter(x, y, title='Title'):
 df = pd.read_csv("data/iris/iris.data")
 df.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
 
-sp_length = df[['sepal_length', 'petal_length']].to_numpy()
+sp_df = df[['sepal_length', 'petal_length']].to_numpy()
 scatter(df['sepal_length'], df['petal_length'], title='Original data')
 
 print("-------------------")
 print("z-scores zero-mean")
 print("-------------------")
-z_scores_zero_mean = eda_std.with_std_dev(sp_length, zero_mean=True)
+z_scores_zero_mean = eda_std.with_std_dev(sp_df, zero_mean=True)
 scaler = StandardScaler()
-scaled_data = scaler.fit_transform(sp_length)
+scaled_data = scaler.fit_transform(sp_df)
 print('Is z_scores_zero_mean allclose to sklearn:',
       np.allclose(scaled_data, z_scores_zero_mean))
 print("std: ", np.std(z_scores_zero_mean, axis=0),
@@ -39,9 +39,9 @@ scatter(z_scores_zero_mean[:, 0], z_scores_zero_mean[:, 1], title='z_scores with
 print("-------------------")
 print("z-scores NOT zero-mean")
 print("-------------------")
-z_scores_not_zero_mean = eda_std.with_std_dev(sp_length, zero_mean=False)
+z_scores_not_zero_mean = eda_std.with_std_dev(sp_df, zero_mean=False)
 scaler = StandardScaler(with_mean = False)
-scaled_data = scaler.fit_transform(sp_length)
+scaled_data = scaler.fit_transform(sp_df)
 print('Is z_scores_not_zero_mean allclose to sklearn:',
       np.allclose(scaled_data, z_scores_not_zero_mean))
 print("std: ", np.std(z_scores_not_zero_mean, axis=0),
@@ -51,9 +51,9 @@ scatter(z_scores_not_zero_mean[:, 0], z_scores_not_zero_mean[:, 1], title='z_sco
 print("-------------------")
 print("min-max normalization")
 print("-------------------")
-Z = eda_std.min_max_norm(sp_length)
+Z = eda_std.min_max_norm(sp_df)
 scaler = MinMaxScaler()
-scaled_data = scaler.fit_transform(sp_length)
+scaled_data = scaler.fit_transform(sp_df)
 print('Is min-max norm allclose to sklearn:',
       np.allclose(scaled_data, Z))
 print("std: ", np.std(Z, axis=0),
@@ -63,9 +63,9 @@ scatter(Z[:, 0], Z[:, 1], title='min-max normalization')
 print("-------------------")
 print("Sphering")
 print("-------------------")
-Z = eda_std.sphering(sp_length)
+Z = eda_std.sphering(sp_df)
 pca = PCA(whiten=True)
-pca_data = np.fliplr(pca.fit_transform(sp_length))
+pca_data = np.fliplr(pca.fit_transform(sp_df))
 print('Is sphering allclose to sklearn:',
       np.allclose(pca_data, Z))
 print("std: ", np.std(Z, axis=0),
