@@ -23,19 +23,47 @@ df.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'cla
 
 X = df[['sepal_length', 'sepal_width', 'petal_length', 'petal_width']].to_numpy()
 
+# -----------------------------------
+# Principal Component Analysis (PCA)
+# -----------------------------------
+
 Z_1 = eda_lin.PCA(X, n_components=2, covariance=True)
 sk_pca = PCA(n_components=2).fit_transform(X)
 sk_pca[:, 1] = -sk_pca[:, 1]
 print('Is Z_1 allclose to sklearn:', np.allclose(Z_1, sk_pca))
-scatter(Z_1[:, 0], Z_1[:, 1], title='my PCA with covariance')
-scatter(sk_pca[:, 0], sk_pca[:, 1], title='sklearn PCA with covariance')
+# scatter(Z_1[:, 0], Z_1[:, 1], title='my PCA with covariance')
+# scatter(sk_pca[:, 0], sk_pca[:, 1], title='sklearn PCA with covariance')
 
-X_std = eda_std.with_std_dev(X, zero_mean=True)
+X_std = eda_std.with_std_dev(X, zero_mean=False)
 Z_2 = eda_lin.PCA(X, n_components=2, covariance=False)
-sk_pca = PCA(n_components=2).fit_transform(X_std)
+# sk_pca = PCA(n_components=2).fit_transform(X_std)
 sk_pca[:, 1] = -sk_pca[:, 1]
-print('Is Z_2 allclose to sklearn:', np.allclose(Z_2, sk_pca))
-scatter(Z_2[:, 0], Z_2[:, 1], title='my PCA with correlation')
-scatter(sk_pca[:, 0], sk_pca[:, 1], title='sklearn PCA with correlation')
+# print('Is Z_2 allclose to sklearn:', np.allclose(Z_2, sk_pca))
+# scatter(Z_2[:, 0], Z_2[:, 1], title='my PCA with correlation')
+# scatter(sk_pca[:, 0], sk_pca[:, 1], title='sklearn PCA with correlation')
+
+# -----------------------------------
+# Scree Plot
+# -----------------------------------
+
+eda_lin.PCA(X, plot_scree_plot=True)
+
+# ----------------------------------
+# Singular Value Decomposition (SVD)
+# It provides a way to find the PCs without explicitly calculating the 
+#   covariance matrix
+# ----------------------------------
+
+eda_lin.SVD(X, plot_singular_values=True)
+
+# ----------------------------------
+# Non-negative Matrix Factorization (NMF)
+# A way to decompose a non-negative matrix into two non-negative matrices
+# It is more efficient than standard SVD. The plot shows how much
+# each component contributes to the original matrix.
+# ----------------------------------
+
+eda_lin.NMF(X, rank=4, plot_components_contribution=True)
+
 
 plt.show()
