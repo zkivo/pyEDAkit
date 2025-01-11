@@ -4,7 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.decomposition import FactorAnalysis
 from sklearn.decomposition import NMF as skNMF
-
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 def PCA(X, n_components = 2, covariance = True, plot = False):
     X_mean = X.mean(axis=0)
@@ -76,13 +76,52 @@ def NMF(X, rank, plot = False):
 
 def FA(X, n_factors, plot = False):
     fa = FactorAnalysis(n_components=n_factors)
-    X_transformed = fa.fit_transform(X)
+    Z = fa.fit_transform(X)
 
-    factor_df = pd.DataFrame(X_transformed, columns=[f"Factor {i+1}" for i in range(n_factors)])
+    factor_df = pd.DataFrame(Z, columns=[f"Factor {i+1}" for i in range(n_factors)])
 
     if plot:
         sns.pairplot(factor_df, diag_kind="kde")
         plt.suptitle("Scatter Plots of Factors", y=1.02)
         plt.show()
 
-    return X_transformed
+    return Z
+
+def LDA(X, y, plot = False):
+    lda = LinearDiscriminantAnalysis(n_components=1)  # Reduce to 1 dimensions
+    Z = lda.fit_transform(X, y)
+
+    # Create a DataFrame for easy visualization
+    lda_df = pd.DataFrame({"LD1": Z.flatten(), "Class": y})
+
+    if plot:
+        unique_classes = np.unique(y)
+        palette = sns.color_palette("Set2", len(unique_classes))
+        class_colors = {class_id: palette[i] for i, class_id in enumerate(unique_classes)}
+
+        plt.figure(figsize=(8, 6))
+        for class_id, color in class_colors.items():
+            sns.kdeplot(
+                lda_df.loc[lda_df["Class"] == class_id, "LD1"],
+                color=color,
+                fill=True,
+                alpha=0.6,
+                label=f"Class {class_id}"
+            )
+        # Scatter points on the x-axis for each class
+        for class_id, color in class_colors.items():
+            class_points = lda_df[lda_df["Class"] == class_id]["LD1"]
+            plt.scatter(
+                class_points,
+                [-0.01] * len(class_points),  # Slightly below the x-axis for separation
+                color=color,
+                alpha=0.7
+            )
+        plt.title("KDE Plot of LDA")
+        plt.xlabel("Linear Discriminant")
+        plt.ylabel("Density")
+        plt.axhline(0, color="gray", linestyle="--", linewidth=0.5)
+        plt.grid()
+        plt.show()
+
+    return Z

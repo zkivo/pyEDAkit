@@ -22,6 +22,13 @@ df = pd.read_csv("data/iris/iris.data")
 df.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
 
 X = df[['sepal_length', 'sepal_width', 'petal_length', 'petal_width']].to_numpy()
+y = df[['class']].to_numpy()[:,0]
+y = np.where(y == 'Iris-setosa', 0, y)
+y = np.where(y == 'Iris-versicolor', 1, y)
+y = np.where(y == 'Iris-virginica', 2, y)
+y = y.astype(int)
+y_names = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
+
 
 # -----------------------------------
 # Principal Component Analysis (PCA)
@@ -76,5 +83,13 @@ eda_lin.NMF(X, rank=4, plot=True)
 
 eda_lin.FA(X, n_factors=3, plot=True)
 
+# ----------------------------------
+# Linear Discriminant Analysis (LDA)
+# A dimentionality reduction method that projects all the values into a
+#   single line. The goal of the projection is to find a line that
+#   makes the observation as separated as possible. 
+# ----------------------------------
+
+eda_lin.LDA(X, y, plot=True)
 
 plt.show()
