@@ -1,9 +1,12 @@
 import numpy as np
+import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.decomposition import FactorAnalysis
 from sklearn.decomposition import NMF as skNMF
 
 
-def PCA(X, n_components = 2, covariance = True, plot_scree_plot = False):
+def PCA(X, n_components = 2, covariance = True, plot = False):
     X_mean = X.mean(axis=0)
     X = X - X_mean
     S = None
@@ -16,7 +19,7 @@ def PCA(X, n_components = 2, covariance = True, plot_scree_plot = False):
     sorted_eigenvalue = eigen_values[sorted_index]
     sorted_eigenvectors = eigen_vectors[:, sorted_index]
 
-    if plot_scree_plot:
+    if plot:
         plt.figure(figsize=(8, 5))
         plt.plot(range(1, len(sorted_eigenvalue) + 1), sorted_eigenvalue, marker='o', linestyle='-')
         plt.plot(n_components, sorted_eigenvalue[n_components - 1], 'ro', label = 'n_components')
@@ -29,13 +32,13 @@ def PCA(X, n_components = 2, covariance = True, plot_scree_plot = False):
 
     return (X @ sorted_eigenvectors)[:, :n_components]
 
-def SVD(X, plot_singular_values = False):
+def SVD(X, plot = False):
     # It provides a way to find the PCs without explicitly calculating 
     #   the covariance matrix.
     # The plot of the singular values is similar to the scree plot in PCA.
     U, S, Vt = np.linalg.svd(X)
     
-    if plot_singular_values:
+    if plot:
         plt.figure(figsize=(8, 5))
         plt.plot(range(1, len(S) + 1), S, marker='o', linestyle='-', label='Singular Values')
         plt.title('Singular Value Decomposition')
@@ -47,7 +50,7 @@ def SVD(X, plot_singular_values = False):
 
     return U, S, Vt
 
-def NMF(X, rank, plot_components_contribution = False):
+def NMF(X, rank, plot = False):
     # is X non-negative?
     if np.any(X < 0):
         print('Error: X contains negative values.')
@@ -59,7 +62,7 @@ def NMF(X, rank, plot_components_contribution = False):
 
     X_reconstructed = np.dot(W, H)
 
-    if plot_components_contribution:
+    if plot:
         plt.figure(figsize=(8, 5))
         plt.plot(range(1, H.shape[0] + 1), np.linalg.norm(H, axis=1), marker='o', linestyle='-', label='Component Norms')
         plt.title('NMF Component Contributions')
@@ -70,3 +73,16 @@ def NMF(X, rank, plot_components_contribution = False):
         plt.show()
 
     return W, H
+
+def FA(X, n_factors, plot = False):
+    fa = FactorAnalysis(n_components=n_factors)
+    X_transformed = fa.fit_transform(X)
+
+    factor_df = pd.DataFrame(X_transformed, columns=[f"Factor {i+1}" for i in range(n_factors)])
+
+    if plot:
+        sns.pairplot(factor_df, diag_kind="kde")
+        plt.suptitle("Scatter Plots of Factors", y=1.02)
+        plt.show()
+
+    return X_transformed

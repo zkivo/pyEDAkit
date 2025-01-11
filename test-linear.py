@@ -46,7 +46,7 @@ sk_pca[:, 1] = -sk_pca[:, 1]
 # Scree Plot
 # -----------------------------------
 
-eda_lin.PCA(X, plot_scree_plot=True)
+eda_lin.PCA(X, plot=True)
 
 # ----------------------------------
 # Singular Value Decomposition (SVD)
@@ -54,7 +54,7 @@ eda_lin.PCA(X, plot_scree_plot=True)
 #   covariance matrix
 # ----------------------------------
 
-eda_lin.SVD(X, plot_singular_values=True)
+eda_lin.SVD(X, plot=True)
 
 # ----------------------------------
 # Non-negative Matrix Factorization (NMF)
@@ -63,7 +63,18 @@ eda_lin.SVD(X, plot_singular_values=True)
 # each component contributes to the original matrix.
 # ----------------------------------
 
-eda_lin.NMF(X, rank=4, plot_components_contribution=True)
+eda_lin.NMF(X, rank=4, plot=True)
+
+# ----------------------------------
+# Factor Analysis
+# Similar to PCA, it reduces the dimensionality of the dataset.
+# It creates a linear equation for each original variables to the new d
+#   variables, where d < p. (p is the number of feature of the dataset)
+# Also it add a small error value at each equation to make it possible the
+#   relation.
+# ----------------------------------
+
+eda_lin.FA(X, n_factors=3, plot=True)
 
 
 plt.show()
