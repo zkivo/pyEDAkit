@@ -92,4 +92,12 @@ eda_lin.FA(X, n_factors=3, plot=True)
 
 eda_lin.LDA(X, y, plot=True)
 
+# ----------------------------------
+# Random Projection
+# It projects the points into a random subspace. Interenstigly, it was 
+#   demonstrated that the distances between the data points are maintained.
+# ----------------------------------
+
+eda_lin.RandProj(X, d=3, plot=True) 
+
 plt.show()

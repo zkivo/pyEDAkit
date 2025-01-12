@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import FactorAnalysis
 from sklearn.decomposition import NMF as skNMF
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.random_projection import GaussianRandomProjection
 
 def PCA(X, n_components = 2, covariance = True, plot = False):
     X_mean = X.mean(axis=0)
@@ -59,8 +60,6 @@ def NMF(X, rank, plot = False):
     nmf_model = skNMF(n_components=rank, init='random', random_state=42) 
     W = nmf_model.fit_transform(X)
     H = nmf_model.components_
-
-    X_reconstructed = np.dot(W, H)
 
     if plot:
         plt.figure(figsize=(8, 5))
@@ -125,3 +124,16 @@ def LDA(X, y, plot = False):
         plt.show()
 
     return Z
+
+def RandProj(X, d, plot = False):
+    rp = GaussianRandomProjection(n_components=d, random_state=42)
+    Z = rp.fit_transform(X)
+
+    # Convert reduced data to a DataFrame
+    reduced_feature_names = [f'Component_{i+1}' for i in range(d)]
+    reduced_data_df = pd.DataFrame(Z, columns=reduced_feature_names)
+
+    if plot:
+        sns.pairplot(reduced_data_df, diag_kind='kde', corner=True)
+        plt.suptitle('Random projection')
+        plt.show()
