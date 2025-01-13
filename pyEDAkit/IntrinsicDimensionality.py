@@ -1,13 +1,74 @@
 import numpy as np
 from scipy.special import gammaln
 from numpy.polynomial.polynomial import Polynomial
-from scipy.stats import linregress
 from scipy.spatial.distance import pdist, squareform
+from scipy.spatial.distance import cdist
 
+def find_nn(X, k):
+    """
+    Compute the pairwise distance matrix and return the distance matrix
+    with only the k-nearest neighbors retained (others set to 0).
+    """
+    n = X.shape[0]
+    distances = cdist(X, X, 'euclidean')  # Pairwise Euclidean distances
+    nearest_neighbors = np.zeros_like(distances)
+
+    for i in range(n):
+        # Find indices of k smallest distances (excluding the diagonal element)
+        neighbor_indices = np.argsort(distances[i, :])[1:k+1]
+        nearest_neighbors[i, neighbor_indices] = distances[i, neighbor_indices]
+
+    return nearest_neighbors
+
+def corr_dim(X):
+    # Compute correlation dimension estimation
+    n = X.shape[0]
+
+    # Compute distance matrix with k-nearest neighbors
+    D = find_nn(X, 5)
+
+    # Extract non-zero elements from the distance matrix D
+    indices = np.nonzero(D)
+    val = D[indices]
+
+    r1 = np.median(val)
+    r2 = np.max(val)
+
+    s1 = 0
+    s2 = 0
+
+    # Transpose X for easier broadcasting
+    X = X.T
+
+    XX = np.sum(X ** 2, axis=0)  # Equivalent of MATLAB's sum(X .^ 2)
+    onez = np.ones(n)
+
+    for i in range(n):
+        p = X[:, i]
+        xx = XX[i]
+        xX = np.dot(p, X)  # Dot product
+
+        # Calculate pairwise distances and handle numerical precision issues
+        dist = xx * onez + XX - 2 * xX
+        dist = np.maximum(dist, 0)  # Ensure non-negative distances
+        dist = np.sqrt(dist)
+        dist = dist[i + 1:n]
+
+        s1 += np.sum(dist < r1)
+        s2 += np.sum(dist < r2)
+
+    Cr1 = (2 / (n * (n - 1))) * s1
+    Cr2 = (2 / (n * (n - 1))) * s2
+
+    # Estimate intrinsic dimensionality
+    no_dims = (np.log(Cr2) - np.log(Cr1)) / (np.log(r2) - np.log(r1))
+
+    return no_dims
 
 def id_pettis(X):
     """
-    Estimate the intrinsic dimensionality using the Pettis, Bailey, Jain, and Dubes algorithm.
+    Estimate the intrinsic dimensionality using the Pettis, 
+        Bailey, Jain, and Dubes algorithm.
 
     Parameters:
     X (array): Data matrix.

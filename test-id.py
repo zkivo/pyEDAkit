@@ -1,5 +1,5 @@
 import numpy as np
-from pyEDAkit.IntrinsicDimensionality import id_pettis
+from pyEDAkit.IntrinsicDimensionality import id_pettis, corr_dim
 import matplotlib.pyplot as plt
 
 n = 500
@@ -23,4 +23,8 @@ plt.show()
 # Use id_pettis to estimate intrinsic dimensionality
 idhat = id_pettis(X)
 
-print("Estimated intrinsic dimensionality:", idhat)
+print("Pettis:", idhat)
+
+idhat = corr_dim(X)
+
+print("CorrDim:", idhat)
