@@ -20,6 +20,85 @@ def find_nn(X, k):
 
     return nearest_neighbors
 
+def packing_numbers(X):
+    # Parameters for the estimation
+    r = [0.1, 0.5]
+    epsilon = 0.01
+    max_iter = 20
+    done = False
+    l = 0
+
+    # Input X assumed to be a NumPy array
+    # X = np.array(...)  # Define your input here
+
+    # Perform iterations (until 'convergence')
+    L = np.zeros((2, max_iter))
+    while not done:
+        l += 1
+        perm = np.random.permutation(X.shape[0])
+
+        # Compute L for two radii (size of C is packing number)
+        for k in range(2):
+            C = []
+            for i in range(X.shape[0]):
+                is_far = True
+                for j in C:
+                    if np.sqrt(np.sum((X[perm[i]] - X[j]) ** 2)) < r[k]:
+                        is_far = False
+                        break
+                if is_far:
+                    C.append(perm[i])
+            L[k, l - 1] = np.log(len(C))  # maximum cardinality of an r(k)-separated subset of X
+
+        # Estimate of intrinsic dimension
+        no_dims = -((np.mean(L[1, :l]) - np.mean(L[0, :l])) / (np.log(r[1]) - np.log(r[0])))
+
+        # Stop condition
+        if l > 10:
+            variance_sum = np.var(L[0, :l]) ** 2 + np.var(L[1, :l]) ** 2
+            if 1.65 * (np.sqrt(variance_sum) / (np.sqrt(l) * (np.log(r[1]) - np.log(r[0])))) < no_dims * ((1 - epsilon) / 2):
+                done = True
+        if l >= max_iter:
+            done = True
+    
+    return no_dims
+
+def MLE(X):
+    # Set neighborhood range to search in
+    k1 = 6
+    k2 = 12
+
+    # Transpose X to match MATLAB input format
+    X = X.T
+    d, n = X.shape
+
+    # Compute X^2 for distance calculation
+    X2 = np.sum(X ** 2, axis=0)
+    knnmatrix = np.zeros((k2, n))
+
+    if n < 3000:
+        # Compute pairwise distances
+        distance = np.add.outer(X2, X2) - 2 * np.dot(X.T, X)
+        # Sort distances for nearest neighbors
+        distance = np.sort(distance, axis=0)
+        knnmatrix = 0.5 * np.log(distance[1:k2 + 1, :])
+    else:
+        for i in range(n):
+            # Compute distances for a single point
+            distance = np.sort(X2[i] + X2 - 2 * np.dot(X[:, i], X))
+            knnmatrix[:, i] = 0.5 * np.log(distance[1:k2 + 1])
+
+    # Compute the ML estimate
+    S = np.cumsum(knnmatrix, axis=0)
+    indexk = np.arange(k1, k2 + 1).reshape(-1, 1)  # Reshape for broadcasting
+    indexk = np.tile(indexk, (1, n))
+    dhat = -(indexk - 2) / (S[k1 - 1:k2, :] - knnmatrix[k1 - 1:k2, :] * indexk)
+
+    # Average over estimates and values of k
+    no_dims = np.mean(dhat)
+    
+    return no_dims
+
 def corr_dim(X):
     # Compute correlation dimension estimation
     n = X.shape[0]

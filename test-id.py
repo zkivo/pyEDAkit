@@ -1,5 +1,6 @@
 import numpy as np
-from pyEDAkit.IntrinsicDimensionality import id_pettis, corr_dim
+from pyEDAkit.IntrinsicDimensionality import id_pettis, corr_dim, MLE, \
+    packing_numbers
 import matplotlib.pyplot as plt
 
 n = 500
@@ -28,3 +29,11 @@ print("Pettis:", idhat)
 idhat = corr_dim(X)
 
 print("CorrDim:", idhat)
+
+idhat = MLE(X)
+
+print("MLE:", idhat)
+
+idhat = packing_numbers(X)
+
+print("PackingNumbers:", idhat)
