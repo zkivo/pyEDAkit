@@ -9,7 +9,13 @@ import pandas as pd
 import pandas as tools
 
 """
-Results:
+    --------- Scene ---------
+    Intrinsic Dimension  Count  Percentage (%)
+                    1.0   3881       64.683333
+                    2.0   1144       19.066667
+                    3.0    974       16.233333
+                    4.0      1        0.016667
+
     --------- 1D helix ---------
     Pettis: 1.1047889445671362
     CorrDim: 1.0309670763066818

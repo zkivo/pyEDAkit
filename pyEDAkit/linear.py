@@ -7,7 +7,7 @@ from sklearn.decomposition import NMF as skNMF
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.random_projection import GaussianRandomProjection
 
-def PCA(X, n_components = 2, covariance = True, plot = False):
+def PCA(X, d, covariance = True, plot = False):
     X_mean = X.mean(axis=0)
     X = X - X_mean
     S = None
@@ -20,18 +20,23 @@ def PCA(X, n_components = 2, covariance = True, plot = False):
     sorted_eigenvalue = eigen_values[sorted_index]
     sorted_eigenvectors = eigen_vectors[:, sorted_index]
 
+    Z = (X @ sorted_eigenvectors)[:, :d]
+
     if plot:
         plt.figure(figsize=(8, 5))
         plt.plot(range(1, len(sorted_eigenvalue) + 1), sorted_eigenvalue, marker='o', linestyle='-')
-        plt.plot(n_components, sorted_eigenvalue[n_components - 1], 'ro', label = 'n_components')
+        plt.plot(d, sorted_eigenvalue[d - 1], 'ro', label = 'd')
         plt.title('Scree Plot')
         plt.xlabel('Eigenvalue Index')
         plt.ylabel('Eigenvalue Magnitude')
         plt.legend()
         plt.grid(True)
+        # scatter matrix of Z
+        sns.pairplot(pd.DataFrame(Z, columns=[f"PC{i+1}" for i in range(d)]), diag_kind='kde')
+        plt.legend()
         plt.show()
 
-    return (X @ sorted_eigenvectors)[:, :n_components]
+    return Z
 
 def SVD(X, plot = False):
     # It provides a way to find the PCs without explicitly calculating 
@@ -51,13 +56,13 @@ def SVD(X, plot = False):
 
     return U, S, Vt
 
-def NMF(X, rank, plot = False):
+def NMF(X, d, plot = False):
     # is X non-negative?
     if np.any(X < 0):
         print('Error: X contains negative values.')
         return None
 
-    nmf_model = skNMF(n_components=rank, init='random', random_state=42) 
+    nmf_model = skNMF(n_components=d, init='random', random_state=42) 
     W = nmf_model.fit_transform(X)
     H = nmf_model.components_
 
@@ -73,11 +78,11 @@ def NMF(X, rank, plot = False):
 
     return W, H
 
-def FA(X, n_factors, plot = False):
-    fa = FactorAnalysis(n_components=n_factors)
+def FA(X, d, plot = False):
+    fa = FactorAnalysis(n_components=d)
     Z = fa.fit_transform(X)
 
-    factor_df = pd.DataFrame(Z, columns=[f"Factor {i+1}" for i in range(n_factors)])
+    factor_df = pd.DataFrame(Z, columns=[f"Factor {i+1}" for i in range(d)])
 
     if plot:
         sns.pairplot(factor_df, diag_kind="kde")
@@ -116,7 +121,7 @@ def LDA(X, y, plot = False):
                 color=color,
                 alpha=0.7
             )
-        plt.title("KDE Plot of LDA")
+        plt.title("LDA with KDE")
         plt.xlabel("Linear Discriminant")
         plt.ylabel("Density")
         plt.axhline(0, color="gray", linestyle="--", linewidth=0.5)
