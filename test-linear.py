@@ -98,6 +98,4 @@ eda_lin.LDA(X, y, plot=True)
 #   demonstrated that the distances between the data points are maintained.
 # ----------------------------------
 
-eda_lin.RandProj(X, d=3, plot=True) 
-
-plt.show()
+eda_lin.RandProj(X, d=3, plot=True)
