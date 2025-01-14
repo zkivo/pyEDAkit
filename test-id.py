@@ -6,7 +6,6 @@ from generate_data import generate_1D_helix, generate_3D_helix, generate_scene
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.neighbors import NearestNeighbors
 import pandas as pd
-import pandas as tools
 
 """
     --------- Scene ---------
