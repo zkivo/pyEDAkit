@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyEDA"
+version = "0.1.0"
+description = "A toolkit for exploratory data analysis in Python"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Alberto Biscalchin", email = "biscalchin.mau.se@gmail.com" },
+    { name = "Marco Schivo", email = "marcoschivo1@gmail.com"}
+]
+keywords = ["data analysis", "EDA", "machine learning"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Data Science"
+]
+dependencies = [
+    "numpy>=1.21.0",
+    "scipy>=1.7.0",
+    "matplotlib>=3.4.0"
+]
+requires-python = ">=3.7"
+
+[project.urls]
+homepage = "https://github.com/zkivo/pyEDAkit"
+repository = "https://github.com/zkivo/pyEDAkit"
