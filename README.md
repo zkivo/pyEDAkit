@@ -689,8 +689,8 @@ test_silhouette()
      $$
      
      where:
-     - $ a(i) $: Average intra-cluster distance (distance to other points in the same cluster).
-     - $ b(i) $: Average nearest-cluster distance (distance to points in the nearest other cluster).
+     - $a(i)$: Average intra-cluster distance (distance to other points in the same cluster).
+     - $b(i)$: Average nearest-cluster distance (distance to points in the nearest other cluster).
 
 3. **Default Case**:
    - By default, the function computes the silhouette scores using the **Euclidean distance** and visualizes the silhouette plot.
