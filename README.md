@@ -236,6 +236,214 @@ This example showcases the flexibility of the `cluster` function. Below is the o
 
 The flexibility of `cluster` makes it an ideal choice for hierarchical clustering tasks requiring MATLAB-like functionality in Python.
 
+
+### **`K-means` Clustering**
+
+The `kmeans` function, imported from the `pyEDAkit.clustering` module, provides a MATLAB-style implementation of the K-means algorithm, allowing intuitive and flexible clustering with support for optional parameters such as the number of replicates and maximum iterations.
+
+---
+
+#### Example:
+
+```python
+import numpy as np
+import pandas as pd
+from pyEDAkit.clustering import kmeans
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+from sklearn.metrics import accuracy_score
+
+def test_kmeans():
+    # Sample data
+    X = np.array([[1, 2], [1, 4], [1, 0],
+                  [10, 2], [10, 4], [10, 0],
+                  [5, 2], [6, 3], [7, 4]])
+
+    # 1) Basic call
+    idx, C, sumd, D = kmeans(X, 2)  # 2 clusters
+
+    print("Cluster labels (idx):\n", idx)
+    print("Centroids (C):\n", C)
+    print("Within-cluster sums (sumd):\n", sumd)
+    print("Distances to centroids (D):\n", D)
+
+    # 2) With optional name-value arguments, e.g., 'Replicates'
+    idx2, C2, sumd2, D2 = kmeans(X, 3, 'Replicates', 5, 'MaxIter', 200, 'Display', 'iter')
+
+    # Step 1: Load the Iris dataset
+    iris_path = "../datasets/iris_dataset.csv"
+    iris_data = pd.read_csv(iris_path)
+
+    # Extract features and target labels
+    X = iris_data.iloc[:, :-1].values  # First 4 columns (features)
+    y_true = iris_data.iloc[:, -1].values  # Last column (true labels)
+
+    # Map the target labels to numeric values
+    label_mapping = {'Iris-setosa': 0, 'Iris-versicolor': 1, 'Iris-virginica': 2}
+    y_numeric = np.array([label_mapping[label] for label in y_true])
+
+    # Step 2: Apply K-means clustering
+    k = 3  # Number of clusters (as Iris dataset has 3 classes)
+    idx, C, sumd, D = kmeans(X, k, 'Distance', 'sqeuclidean', 'Replicates', 5, 'MaxIter', 300)
+
+    # Step 3: Reduce dimensionality for visualization (using PCA)
+    pca = PCA(n_components=2)  # Reduce to 2D
+    X_pca = pca.fit_transform(X)
+
+    # Transform centroids to PCA space
+    C_pca = pca.transform(C)
+
+    # Step 4: Visualize the clustering results with colored areas
+    plt.figure(figsize=(12, 6))
+
+    # Plot the true labels
+    plt.subplot(1, 2, 1)
+    scatter1 = plt.scatter(X_pca[:, 0], X_pca[:, 1], c=y_numeric, cmap='viridis', edgecolor='k', s=50)
+    plt.title("True Labels")
+    plt.xlabel("Principal Component 1")
+    plt.ylabel("Principal Component 2")
+    plt.colorbar(scatter1, label="Class")
+
+    # Plot the K-means cluster assignments with colored areas
+    plt.subplot(1, 2, 2)
+
+    # Create a grid to color the background
+    x_min, x_max = X_pca[:, 0].min() - 1, X_pca[:, 0].max() + 1
+    y_min, y_max = X_pca[:, 1].min() - 1, X_pca[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.05),
+                         np.arange(y_min, y_max, 0.05))
+
+    # Predict the cluster for each point in the grid
+    grid_points = np.c_[xx.ravel(), yy.ravel()]
+    Z = kmeans(pca.inverse_transform(grid_points), k, 'Distance', 'sqeuclidean')[0]
+    Z = Z.reshape(xx.shape)
+
+    # Plot the filled contour for the clusters
+    cmap = ListedColormap(['#FFCCCC', '#CCFFCC', '#CCCCFF'])
+    plt.contourf(xx, yy, Z, cmap=cmap, alpha=0.4)
+
+    # Scatter the points
+    scatter2 = plt.scatter(X_pca[:, 0], X_pca[:, 1], c=idx, cmap='viridis', edgecolor='k', s=50)
+    plt.scatter(C_pca[:, 0], C_pca[:, 1], c='red', s=200, marker='X', label="Centroids")  # Mark centroids
+    plt.title("K-means Clustering with Colored Areas")
+    plt.xlabel("Principal Component 1")
+    plt.ylabel("Principal Component 2")
+    plt.legend()
+    plt.colorbar(scatter2, label="Cluster")
+
+    plt.tight_layout()
+    plt.show()
+
+    # Step 5: Calculate and print accuracy
+    # Map clusters to the closest true labels to calculate accuracy
+    from scipy.stats import mode
+
+    # Remap clusters to best match true labels
+    remapped_idx = np.zeros_like(idx)
+    for cluster in range(1, k + 1):  # Clusters are 1-based
+        mask = (idx == cluster)
+        remapped_idx[mask] = mode(y_numeric[mask])[0]
+
+    # Calculate accuracy
+    accuracy = accuracy_score(y_numeric, remapped_idx)
+    print(f"Clustering Accuracy: {accuracy:.2f}")
+
+    # Print results
+    print("Cluster assignments (idx):")
+    print(idx)
+    print("\nCentroids (C):")
+    print(C)
+    print("\nWithin-cluster sum of distances (sumd):")
+    print(sumd)
+
+test_kmeans()
+```
+---
+#### Centroids displacement plot
+![K-Means Example](examples/k-means.png)
+---
+
+#### Bash Output:
+
+```bash
+Cluster labels (idx):
+ [2. 2. 2. 1. 1. 1. 1. 1. 1.]
+Centroids (C):
+ [[8.  2.5]
+ [1.  2. ]]
+Within-cluster sums (sumd):
+ [37.5  8. ]
+Distances to centroids (D):
+ [[4.92500000e+01 7.88860905e-31]
+ [5.12500000e+01 4.00000000e+00]
+ [5.52500000e+01 4.00000000e+00]
+ [4.25000000e+00 8.10000000e+01]
+ [6.25000000e+00 8.50000000e+01]
+ [1.02500000e+01 8.50000000e+01]
+ [9.25000000e+00 1.60000000e+01]
+ [4.25000000e+00 2.60000000e+01]
+ [3.25000000e+00 4.00000000e+01]]
+Initialization complete
+Iteration 0, inertia 38.0.
+Iteration 1, inertia 20.0.
+Converged at iteration 1: strict convergence.
+Initialization complete
+Iteration 0, inertia 38.0.
+Iteration 1, inertia 20.0.
+Converged at iteration 1: strict convergence.
+Initialization complete
+Iteration 0, inertia 54.0.
+Iteration 1, inertia 31.333333333333336.
+Converged at iteration 1: strict convergence.
+Initialization complete
+Iteration 0, inertia 31.0.
+Iteration 1, inertia 26.1875.
+Iteration 2, inertia 20.0.
+Converged at iteration 2: strict convergence.
+Initialization complete
+Iteration 0, inertia 26.0.
+Iteration 1, inertia 20.0.
+Converged at iteration 1: strict convergence.
+Clustering Accuracy: 0.89
+Cluster assignments (idx):
+[1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 3. 3. 2. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3.
+ 3. 3. 3. 3. 3. 2. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3.
+ 3. 3. 3. 3. 2. 3. 2. 2. 2. 2. 3. 2. 2. 2. 2. 2. 2. 3. 3. 2. 2. 2. 2. 3.
+ 2. 3. 2. 3. 2. 2. 3. 3. 2. 2. 2. 2. 2. 3. 2. 2. 2. 2. 3. 2. 2. 2. 3. 2.
+ 2. 2. 3. 2. 2. 3.]
+
+Centroids (C):
+[[5.006      3.418      1.464      0.244     ]
+ [6.85       3.07368421 5.74210526 2.07105263]
+ [5.9016129  2.7483871  4.39354839 1.43387097]]
+
+Within-cluster sum of distances (sumd):
+[15.2404     23.87947368 39.82096774]
+
+Process finished with exit code 0
+```
+
+---
+
+#### Key Points:
+
+1. **Basic Clustering**:
+   - Cluster assignment, centroids, within-cluster sum of distances, and point-to-centroid distances are calculated.
+   
+2. **Iris Dataset Example**:
+   - Used the Iris dataset to cluster the data and compare with true labels for accuracy.
+   
+3. **Visualization**:
+   - PCA reduces the dimensionality for 2D visualization.
+   - Colored areas represent cluster boundaries, and centroids are marked with red `X`. 
+
+4. **Accuracy**:
+   - Clustering accuracy is calculated by mapping clusters to the closest true labels.
+
+
 ## Dependencies
 This repository requires the following Python libraries:
 - `numpy>=1.21.0`
