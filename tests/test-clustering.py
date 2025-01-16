@@ -263,21 +263,39 @@ def test_minspantree():
 
 
 def test_cophenet():
-    # Generate sample data
+    # Step 1: Generate sample data
     np.random.seed(42)
     X = np.vstack([
-        np.random.rand(5, 2),
-        np.random.rand(5, 2) + 5
+        np.random.rand(5, 2),       # Cluster 1
+        np.random.rand(5, 2) + 5   # Cluster 2 (shifted by +5)
     ])
-    # Pairwise distances and linkage
+
+    # Step 2: Compute pairwise distances
     Y = pdist(X)
+
+    # Step 3: Perform hierarchical clustering with average linkage
     Z = linkage(Y, method='average')
 
-    # Cophenetic correlation
+    # Step 4: Compute cophenetic correlation coefficient
     c, d = cophenet(Z, Y)
-    print("Cophenetic correlation coefficient:", c)
-    print("Shape of cophenetic distances:", d.shape)
 
+    # Step 5: Display results
+    print("Expected Result: Pairwise distances")
+    print("Y (first 10 values):", Y[:10])
+
+    print("\nActual Result: Cophenetic distances")
+    print("d (first 10 values):", d[:10])
+
+    print("\nCophenetic correlation coefficient:", c)
+
+    # Step 6: Visualize clustering with dendrogram
+    plt.figure(figsize=(10, 5))
+    plt.title("Dendrogram")
+    plt.xlabel("Data Points")
+    plt.ylabel("Distance")
+    from scipy.cluster.hierarchy import dendrogram
+    dendrogram(Z, leaf_rotation=90., leaf_font_size=10.)
+    plt.show()
 
 
 if __name__ == '__main__':

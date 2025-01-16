@@ -547,6 +547,120 @@ Process finished with exit code 0
 ---
 
 
+### **`cophenet` - Cophenetic Correlation Coefficient**
+
+The `cophenet` function computes the cophenetic correlation coefficient, a measure of how well the hierarchical clustering structure reflects the pairwise distances among the data points. It also provides the cophenetic distances for the linkage matrix.
+
+
+#### Enhanced Example:
+
+```python
+import numpy as np
+from pyEDAkit.IntrinsicDimensionality import pdist
+from pyEDAkit.clustering import linkage, cophenet
+import matplotlib.pyplot as plt
+
+def test_cophenet():
+    # Step 1: Generate sample data
+    np.random.seed(42)
+    X = np.vstack([
+        np.random.rand(5, 2),       # Cluster 1
+        np.random.rand(5, 2) + 5   # Cluster 2 (shifted by +5)
+    ])
+
+    # Step 2: Compute pairwise distances
+    Y = pdist(X)
+
+    # Step 3: Perform hierarchical clustering with average linkage
+    Z = linkage(Y, method='average')
+
+    # Step 4: Compute cophenetic correlation coefficient
+    c, d = cophenet(Z, Y)
+
+    # Step 5: Display results
+    print("Expected Result: Pairwise distances")
+    print("Y (first 10 values):", Y[:10])
+
+    print("\nActual Result: Cophenetic distances")
+    print("d (first 10 values):", d[:10])
+
+    print("\nCophenetic correlation coefficient:", c)
+
+    # Step 6: Visualize clustering with dendrogram
+    plt.figure(figsize=(10, 5))
+    plt.title("Dendrogram")
+    plt.xlabel("Data Points")
+    plt.ylabel("Distance")
+    from scipy.cluster.hierarchy import dendrogram
+    dendrogram(Z, leaf_rotation=90., leaf_font_size=10.)
+    plt.show()
+
+# Run the example
+test_cophenet()
+```
+
+#### **Explanation**:
+
+1. **Input Data**:
+   - A synthetic dataset `X` is created with two distinct clusters: one centered around `(0, 0)` and another around `(5, 5)`.
+
+2. **Pairwise Distances**:
+   - `pdist` computes the Euclidean distances between all pairs of points in `X`. These are the **expected pairwise distances**.
+
+3. **Hierarchical Clustering**:
+   - The `linkage` function is used with the `'average'` method to compute the hierarchical clustering.
+
+4. **Cophenetic Correlation Coefficient**:
+   - The `cophenet` function computes:
+     - The **cophenetic correlation coefficient**: A measure of how well the clustering represents the original pairwise distances. It ranges from `-1` to `1`, with values closer to `1` indicating better clustering fidelity.
+     - The **cophenetic distances**: These are the distances implied by the hierarchical clustering.
+
+5. **Comparison**:
+   - The example prints the **expected pairwise distances** (`Y`) and the **actual cophenetic distances** (`d`), along with the cophenetic correlation coefficient (`c`).
+
+6. **Visualization**:
+   - The dendrogram visualizes the hierarchical clustering.
+
+
+#### **Expected Output**:
+
+```bash
+Expected Result: Pairwise distances
+Y (first 10 values): [0.5017136  0.82421549 0.32755369 0.33198071 6.83944824 6.92460439
+ 6.40512716 6.72486612 6.66463903 0.72642889]
+
+Actual Result: Cophenetic distances
+d (first 10 values): [0.5310849  0.7441755  0.32755369 0.5310849  6.90984673 6.90984673
+ 6.90984673 6.90984673 6.90984673 0.7441755 ]
+
+Cophenetic correlation coefficient: 0.9966209146535578
+
+Process finished with exit code 0
+```
+![Cophenetic Correlation](examples/Cophenetic_corr.png)
+
+#### **Key Takeaways**:
+
+- The **cophenetic correlation coefficient** (`c = 0.994`) indicates that the hierarchical clustering structure is a very good representation of the original pairwise distances.
+- The **cophenetic distances** (`d`) closely match the original distances in `Y`.
+- The dendrogram visually confirms the clustering structure, with two distinct groups evident.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+---
+
 ## Dependencies
 This repository requires the following Python libraries:
 - `numpy>=1.21.0`
