@@ -81,9 +81,8 @@ This repository implements MATLAB-style functions in Python for various data ana
 
 This example demonstrates the usage of the `linkage` function for hierarchical clustering. The `linkage` function builds a hierarchical cluster tree (also known as a dendrogram) using various linkage methods. We show two use cases: clustering a large dataset into groups and visualizing the hierarchy using a dendrogram.
 
----
 
-#### Example:
+#### Python Code:
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
@@ -148,8 +147,6 @@ def test_linkage():
 
 test_linkage()
 ```
-
----
 
 ### Visualizations
 
