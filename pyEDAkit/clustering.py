@@ -1,17 +1,9 @@
 import numpy as np
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-
 from scipy.cluster.hierarchy import linkage as scipy_linkage
 from scipy.cluster.hierarchy import fcluster, inconsistent
 from scipy.spatial.distance import pdist, squareform, cdist
-from scipy.special import gammaln
-from numpy.polynomial.polynomial import Polynomial
-from sklearn.decomposition import FactorAnalysis
-from sklearn.decomposition import NMF as skNMF
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.random_projection import GaussianRandomProjection
+from sklearn.cluster import KMeans
+from scipy.spatial.distance import cdist
 
 def linkage(X,
             method='single',
@@ -306,3 +298,251 @@ def cluster(Z, *args, **kwargs):
         "No valid clustering instruction found. Use 'Cutoff',C or 'MaxClust',N."
     )
 
+
+def kmeans(X, k, *args, **kwargs):
+    """
+    K-means clustering in the style of MATLAB's kmeans function.
+
+    Parameters
+    ----------
+    X : array-like of shape (n_samples, n_features)
+        Input data matrix. Rows correspond to observations, columns to variables.
+    k : int
+        Number of clusters.
+
+    *args :
+        Positional arguments that follow MATLAB's 'Name',Value syntax, e.g.:
+          ('Distance','sqeuclidean','Replicates',5,'MaxIter',200, ...)
+
+    **kwargs :
+        Pythonic keyword arguments that likewise follow MATLAB's naming, e.g.:
+          Distance='sqeuclidean', Replicates=5, MaxIter=200, etc.
+
+    Returns
+    -------
+    idx : ndarray of shape (n_samples,)
+        Cluster index (label) for each observation (1-based in MATLAB, 0-based
+        in scikit-learn, but we add +1 to match MATLAB).
+    C : ndarray of shape (k, n_features)
+        Final centroid locations.
+    sumd : ndarray of shape (k,)
+        Within-cluster sum of distances. sumd[j] is the sum of distances
+        between all points assigned to cluster j and the centroid of cluster j.
+    D : ndarray of shape (n_samples, k)
+        Distances from each point (row) to every centroid (column).
+
+    Notes
+    -----
+    - By default, uses 'Distance' = 'sqeuclidean' (the usual squared Euclidean),
+      which aligns with scikit-learn’s KMeans.
+    - Supports basic name-value pairs:
+         'Distance':   'sqeuclidean' (default), other metrics raise NotImplementedError
+         'Start':      'plus' (k-means++), 'sample' (random), or user-provided
+                       numeric matrix
+         'Replicates': mapped to scikit-learn's n_init
+         'MaxIter':    mapped to max_iter
+         'Display':    'off','final','iter' -> controls verbosity (0 or 1)
+         'EmptyAction','OnlinePhase','Options': accepted but either ignored or raise
+                       warnings (since scikit-learn doesn't support them directly)
+    - Returns all four outputs. In MATLAB usage, e.g.
+         idx = kmeans(...);
+         [idx,C] = kmeans(...);
+      simply ignore the extra outputs in Python.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> # Suppose we have 2D data
+    >>> X = np.array([[1,2],[1,4],[1,0],
+    ...               [10,2],[10,4],[10,0]])
+    >>> # Basic call
+    >>> idx, C, sumd, D = kmeans(X, 2)
+    >>> print(idx)  # cluster assignments
+    >>> print(C)    # final centroids
+    >>> print(sumd) # within-cluster sums
+    >>> print(D)    # distances from each point to each centroid
+    """
+
+    # --- 1) Default parameter values in the spirit of MATLAB ---
+    distance = 'sqeuclidean'
+    start = 'plus'         # (i.e., 'k-means++')
+    replicates = 1
+    maxiter = 100
+    display = 'off'        # 'off', 'final', or 'iter'
+    # Some parameters that we won't fully implement, but parse anyway:
+    emptyaction = 'singleton'
+    onlinephase = 'off'
+    options = None
+
+    # --- 2) Parse *args in (Name, Value) pairs, just like MATLAB. ---
+    i = 0
+    while i < len(args):
+        if i+1 >= len(args):
+            raise ValueError(f"Parameter '{args[i]}' has no corresponding value.")
+        param_name = str(args[i]).lower()
+        param_val = args[i+1]
+        i += 2
+        if param_name == 'distance':
+            distance = param_val
+        elif param_name == 'start':
+            start = param_val
+        elif param_name == 'replicates':
+            replicates = param_val
+        elif param_name == 'maxiter':
+            maxiter = param_val
+        elif param_name == 'display':
+            display = param_val
+        elif param_name == 'emptyaction':
+            emptyaction = param_val
+        elif param_name == 'onlinephase':
+            onlinephase = param_val
+        elif param_name == 'options':
+            options = param_val
+        else:
+            raise ValueError(f"Unrecognized parameter name: '{args[i]}'")
+
+    # --- 3) Parse **kwargs in a Pythonic style. ---
+    for key, val in kwargs.items():
+        key_lower = key.lower()
+        if key_lower == 'distance':
+            distance = val
+        elif key_lower == 'start':
+            start = val
+        elif key_lower == 'replicates':
+            replicates = val
+        elif key_lower == 'maxiter':
+            maxiter = val
+        elif key_lower == 'display':
+            display = val
+        elif key_lower == 'emptyaction':
+            emptyaction = val
+        elif key_lower == 'onlinephase':
+            onlinephase = val
+        elif key_lower == 'options':
+            options = val
+        else:
+            raise ValueError(f"Unrecognized parameter: '{key}'")
+
+    # --- 4) Handle distance. Currently only support 'sqeuclidean'. ---
+    if distance.lower() != 'sqeuclidean':
+        raise NotImplementedError("Only 'sqeuclidean' distance is supported in this wrapper.")
+
+    # --- 5) Handle Start. ---
+    #   'plus'    -> init='k-means++'
+    #   'sample'  -> init='random'
+    #   'uniform' or 'cluster' -> raise NotImplementedError or partial
+    #   numeric   -> user-supplied initial centers => must be shape (k, n_features)
+    init_param = 'k-means++'
+    if isinstance(start, str):
+        s_lower = start.lower()
+        if s_lower == 'plus':
+            init_param = 'k-means++'
+        elif s_lower == 'sample':
+            init_param = 'random'
+        elif s_lower in ['cluster', 'uniform']:
+            raise NotImplementedError(f"Start='{start}' is not supported in this wrapper.")
+        else:
+            raise ValueError(f"Unrecognized 'Start' option: {start}")
+    else:
+        # If it's an array or numeric matrix, we treat it as the user specifying
+        # initial cluster centroids. Must have shape (k, n_features) or shape (k, n_features, r)
+        init_arr = np.asarray(start, dtype=float)
+        if init_arr.ndim == 2:
+            # shape: (k, p)
+            if init_arr.shape[0] != k:
+                raise ValueError("The first dimension of Start does not match k.")
+            init_param = init_arr
+        elif init_arr.ndim == 3:
+            # shape: (k, p, r) => implies multiple replicates
+            # scikit-learn only takes a single init. We can roll out multiple fits manually...
+            # For simplicity, we handle only the first page or raise an error.
+            raise NotImplementedError("3D arrays for 'Start' are not supported in this basic wrapper.")
+        else:
+            raise ValueError("Start array must be 2D or 3D.")
+
+    # --- 6) Map Replicates -> n_init, MaxIter -> max_iter. ---
+    n_init_param = replicates
+    max_iter_param = maxiter
+
+    # --- 7) Map Display -> verbose. ---
+    #   'off'   => 0
+    #   'final' => 0 (scikit-learn doesn't have a final summary)
+    #   'iter'  => 1
+    verbose_param = 0
+    disp_lower = display.lower()
+    if disp_lower == 'iter':
+        verbose_param = 1
+    elif disp_lower in ['final', 'off']:
+        verbose_param = 0
+    else:
+        raise ValueError(f"Unrecognized 'Display' option: {display}")
+
+    # --- 8) Warn or ignore unsupported name-value pairs. ---
+    if emptyaction.lower() != 'singleton':
+        # scikit-learn does not support reassigning empty clusters,
+        # so we just warn or raise an error if user sets something else.
+        print(f"Warning: 'EmptyAction'='{emptyaction}' is not fully supported. "
+              f"Using default scikit-learn behavior (error if a cluster is empty).")
+    if onlinephase.lower() != 'off':
+        print(f"Warning: 'OnlinePhase'='{onlinephase}' is not implemented. Using standard batch updates.")
+    if options is not None:
+        print("Warning: 'Options' is not fully supported. Ignoring in this wrapper.")
+
+    # --- 9) Fit the model using scikit-learn's KMeans. ---
+    X = np.asarray(X, dtype=float)
+    # Handle missing data (NaNs) as MATLAB does (remove rows):
+    nan_mask = np.isnan(X).any(axis=1)
+    removed_indices = np.where(nan_mask)[0]
+    keep_mask = ~nan_mask
+    X_valid = X[keep_mask]
+
+    if len(X_valid) == 0:
+        raise ValueError("All rows of X contain NaNs, cannot perform k-means.")
+
+    # Create KMeans object
+    kmeans_model = KMeans(
+        n_clusters=k,
+        init=init_param,
+        n_init=n_init_param,
+        max_iter=max_iter_param,
+        verbose=verbose_param,
+        tol=1e-4,  # default tolerance
+        algorithm='lloyd',  # standard, similar to MATLAB batch updates
+        random_state=None  # You could parse from 'options' or user input
+    )
+
+    kmeans_model.fit(X_valid)
+    labels_valid = kmeans_model.labels_
+    centers = kmeans_model.cluster_centers_
+
+    # --- 10) Construct outputs. ---
+    # idx: we need a vector of length n_samples. For rows with NaN, MATLAB kmeans returns NaN.
+    idx_full = np.full(shape=(X.shape[0],), fill_value=np.nan)
+    idx_full[keep_mask] = labels_valid
+    # MATLAB labels are 1-based, while scikit-learn's are 0-based:
+    idx_full = idx_full + 1  # convert to 1-based
+
+    # C: the final centroid locations. shape (k, p)
+    # For rows dropped due to NaNs in X, that doesn't change the centroid array. So it's fine.
+    C = centers
+
+    # sumd: Within-cluster sums of distances. We'll compute using the (squared) Euclidean distances
+    # consistent with 'sqeuclidean'.
+    #   sumd[j] = sum of distances between all points in cluster j and center j
+    # scikit-learn's inertia_ is the sum of squared distances to centroids across all clusters.
+    # But we want the sum per cluster. We'll do it manually.
+    # Distances from each valid point to each centroid:
+    D_valid = cdist(X_valid, C, metric='euclidean')**2  # squared Euclidean
+    # For each cluster j, sum the distances
+    sumd_array = np.zeros(k)
+    for j in range(k):
+        in_cluster_j = (labels_valid == j)
+        sumd_array[j] = D_valid[in_cluster_j, j].sum()
+
+    # D: Distances from each point to each centroid => shape (n_samples, k)
+    # For rows with NaNs, we return all NaN
+    D_full = np.full(shape=(X.shape[0], k), fill_value=np.nan)
+    D_full[keep_mask, :] = D_valid
+
+    # Return the 4 outputs
+    return idx_full, C, sumd_array, D_full
