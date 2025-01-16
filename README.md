@@ -683,10 +683,10 @@ test_silhouette()
 
 2. **Silhouette Analysis**:
    - The silhouette score is computed for each data point as:
-   
      $$ 
         s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))} 
      $$
+   
      where:
      - $a(i)$: Average intra-cluster distance (distance to other points in the same cluster).
      - $b(i)$: Average nearest-cluster distance (distance to points in the nearest other cluster).
