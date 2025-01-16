@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.cluster.hierarchy import fcluster
-from pyEDAkit.clustering import linkage
+from pyEDAkit.clustering import linkage, cluster
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import dendrogram
 
@@ -55,10 +55,30 @@ plt.figure(figsize=(10, 6))
 dendrogram(
     Z,
     labels=[1, 2, 3, 4],  # Use MATLAB-style indices for the leaf nodes
-    leaf_font_size=10,      # Adjust font size for clarity
-    reorder=[0, 1, 2, 3]   # Reorder leaves to appear as 1-2-3-4
+    leaf_font_size=10      # Adjust font size for clarity
 )
 plt.title('Dendrogram')
 plt.xlabel('Leaf Nodes')
 plt.ylabel('Linkage Distance')
 plt.show()
+
+# Step 10: Cluster testing
+
+# Generate sample data
+X = np.random.rand(10, 3)
+
+# Compute linkage matrix
+Z = linkage(X, method='ward')
+
+# 1) Cut off by distance = 0.7
+T_distance = cluster(Z, 'Cutoff', 0.7, 'Criterion', 'distance')
+
+# 2) Cut off by inconsistent measure
+T_inconsist = cluster(Z, 'Cutoff', 1.5)
+
+# 3) Force a maximum of 3 clusters
+T_maxclust = cluster(Z, 'MaxClust', 3)
+
+# 4) Multiple cutoffs -> T is an m-by-l matrix
+T_multi = cluster(Z, 'Cutoff', [0.7, 1.0, 1.5], 'Criterion', 'distance')
+print(T_multi.shape)  # (10, 3)
