@@ -4,6 +4,7 @@ from scipy.cluster.hierarchy import fcluster, inconsistent
 from scipy.spatial.distance import pdist, squareform, cdist
 from sklearn.cluster import KMeans
 from scipy.spatial.distance import cdist
+from scipy.cluster.hierarchy import cophenet as scipy_cophenet
 import networkx as nx
 
 def linkage(X,
@@ -766,3 +767,75 @@ def minspantree(G, *args, **kwargs):
     # If tree_type='tree', then nodes not in the root's component remain np.nan
 
     return T, pred
+
+
+def cophenet(Z, Y):
+    """
+    Compute the cophenetic correlation coefficient for a hierarchical cluster tree,
+    along with (optionally) the cophenetic distances in condensed form, matching
+    MATLAB's cophenet behavior.
+
+    Parameters
+    ----------
+    Z : ndarray of shape (m-1, 4)
+        The linkage matrix representing the hierarchical cluster tree. Typically
+        the output of `scipy.cluster.hierarchy.linkage` (m observations => m-1 merges).
+        In MATLAB terms, Z(:,3) holds the distance at each merge.
+
+    Y : ndarray of shape (m*(m-1)//2,)
+        The condensed distance vector used to generate Z (e.g., the output of
+        `scipy.spatial.distance.pdist`). This is the same shape as MATLAB's Y from
+        `pdist(X)`.
+
+    Returns
+    -------
+    c : float
+        Cophenetic correlation coefficient, measuring how faithfully the dendrogram
+        preserves the pairwise distances in Y.
+        A value close to 1 indicates a high-quality clustering solution.
+
+    d : ndarray of shape (m*(m-1)//2,)
+        The cophenetic distances in condensed form. d[i] is the cophenetic distance
+        between the same pair of observations indexed by Y[i]. The cophenetic
+        distance between two observations is the linkage distance at which they are
+        first merged in the dendrogram.
+
+    Notes
+    -----
+    - The formula for the cophenetic correlation coefficient c is:
+
+      c = ( sum_{i<j} (Y_ij - y)(Z_ij - z) )
+          -------------------------------------------------
+          sqrt( sum_{i<j}(Y_ij - y)^2 * sum_{i<j}(Z_ij - z)^2 )
+
+      where:
+        * Y_ij is the original distance between observations i and j
+        * Z_ij is the cophenetic (dendrogram) distance between i and j
+        * y and z are the average of Y and Z (cophenetic distances), respectively.
+
+    - In Python, SciPy’s `cophenet(Z, Y)` computes both c and d, so we simply wrap
+      that function. If you only need c, you can ignore d:
+
+        >>> c, _ = cophenet(Z, Y)
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.spatial.distance import pdist
+    >>> from scipy.cluster.hierarchy import linkage
+    >>> # Generate sample data (e.g., three clusters in 3D space)
+    >>> X = np.vstack([
+    ...     np.random.randn(10,3),
+    ...     np.random.randn(10,3) + 5,
+    ...     np.random.randn(10,3) + 10
+    ... ])
+    >>> # Compute condensed distances and linkage
+    >>> Y = pdist(X)  # shape (m*(m-1)//2,)
+    >>> Z = linkage(Y, method='average')
+    >>> # Now compute cophenet
+    >>> c, d = cophenet(Z, Y)
+    >>> print("Cophenetic correlation coefficient:", c)
+    >>> print("Cophenetic distances shape:", d.shape)
+    """
+    c, d = scipy_cophenet(Z, Y)
+    return c, d
