@@ -236,6 +236,7 @@ This example showcases the flexibility of the `cluster` function. Below is the o
 
 The flexibility of `cluster` makes it an ideal choice for hierarchical clustering tasks requiring MATLAB-like functionality in Python.
 
+---
 
 ### **`K-means` Clustering**
 
