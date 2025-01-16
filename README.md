@@ -683,7 +683,6 @@ test_silhouette()
 
 2. **Silhouette Analysis**:
    - The silhouette score is computed for each data point as:
-     
      $$ 
         s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))} 
      $$
