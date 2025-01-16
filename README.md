@@ -158,7 +158,6 @@ This plot visualizes the clusters formed by hierarchical clustering on a randoml
 
 ![3D Scatter Plot](examples/hierarchical_clustering_scatter_3d.png)
 
----
 
 #### **Dendrogram**
 The dendrogram represents the hierarchical clustering of a small dataset, built from a dissimilarity matrix. The `complete` linkage method is used to compute the hierarchical structure, and the result is visualized as a dendrogram.
@@ -169,7 +168,6 @@ The dendrogram represents the hierarchical clustering of a small dataset, built 
 
 The `cluster` function is a MATLAB-style wrapper for SciPy's `fcluster` function, allowing flexible and intuitive hierarchical clustering. This example demonstrates its usage with various clustering criteria, such as distance thresholds, inconsistent measures, and a fixed number of clusters. Additionally, it supports multiple cutoffs to produce a matrix of cluster assignments.
 
----
 
 #### Example:
 
@@ -200,8 +198,6 @@ def test_cluster():
 test_cluster()
 ```
 
----
-
 #### Output:
 
 This example showcases the flexibility of the `cluster` function. Below is the output from the final step, where multiple cutoffs are used:
@@ -209,8 +205,6 @@ This example showcases the flexibility of the `cluster` function. Below is the o
 ```bash
 (10, 3)
 ```
-
----
 
 ### Key Points:
 
@@ -242,7 +236,6 @@ The flexibility of `cluster` makes it an ideal choice for hierarchical clusterin
 
 The `kmeans` function, imported from the `pyEDAkit.clustering` module, provides a MATLAB-style implementation of the K-means algorithm, allowing intuitive and flexible clustering with support for optional parameters such as the number of replicates and maximum iterations.
 
----
 
 #### Example:
 
@@ -360,10 +353,9 @@ def test_kmeans():
 
 test_kmeans()
 ```
----
+
 #### Centroids displacement plot
 ![K-Means Example](examples/k-means.png)
----
 
 #### Bash Output:
 
@@ -427,8 +419,6 @@ Within-cluster sum of distances (sumd):
 Process finished with exit code 0
 ```
 
----
-
 #### Key Points:
 
 1. **Basic Clustering**:
@@ -449,8 +439,6 @@ Process finished with exit code 0
 ### **`minspantree` - Minimum Spanning Tree**
 
 The `minspantree` function computes the Minimum Spanning Tree (MST) of a given graph. It supports both Prim's and Kruskal's algorithms and can return the MST for a specific component (`Type='tree'`) or the entire graph (`Type='forest'`).
-
----
 
 #### Example:
 
@@ -516,7 +504,6 @@ def test_minspantree():
 test_minspantree()
 ```
 
----
 
 #### Visualization
 
@@ -526,7 +513,7 @@ test_minspantree()
 
 ![Minimum Spanning Tree](examples/minspantree.png)
 
----
+
 
 #### Bash Output
 
@@ -541,8 +528,6 @@ Predecessors (Kruskal): {1: 2, 2: 0, 3: 2, 4: 5, 5: 3, 6: 5}
 
 Process finished with exit code 0
 ```
-
----
 
 #### Key Points
 
@@ -559,7 +544,7 @@ Process finished with exit code 0
 
 4. **Customizability**:
    - Supports options like specifying the root node and generating a forest for disconnected graphs.
-
+---
 
 
 ## Dependencies
