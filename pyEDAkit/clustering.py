@@ -4,6 +4,7 @@ from scipy.cluster.hierarchy import fcluster, inconsistent
 from scipy.spatial.distance import pdist, squareform, cdist
 from sklearn.cluster import KMeans
 from scipy.spatial.distance import cdist
+import networkx as nx
 
 def linkage(X,
             method='single',
@@ -546,3 +547,222 @@ def kmeans(X, k, *args, **kwargs):
 
     # Return the 4 outputs
     return idx_full, C, sumd_array, D_full
+
+
+def minspantree(G, *args, **kwargs):
+    """
+    Python wrapper that emulates MATLAB's minspantree function for an undirected graph.
+    Uses NetworkX under the hood.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        An undirected graph object. The edges can have a 'weight' attribute to indicate
+        their cost or distance.
+
+    *args :
+        Positional arguments, in MATLAB-style name-value pairs:
+        e.g. ('Method','sparse','Root',2,'Type','forest').
+
+    **kwargs :
+        Keyword arguments in Pythonic style, but named as in MATLAB:
+        e.g. Method='sparse', Root=2, Type='tree'.
+
+    Returns
+    -------
+    T : networkx.Graph
+        The minimum spanning tree (MST), or a forest if 'Type'='forest'.
+        This subgraph has the same set of nodes as G, but only edges forming
+        the MST are included. (For disconnected graphs with 'Type'='tree',
+        T will have only the MST of the component containing 'Root'. For
+        'Type'='forest', T will contain the MST edges of all components.)
+
+    pred : dict
+        A dictionary of predecessor nodes, keyed by node. `pred[u] = v` if
+        v is the parent of u in the MST rooted at 'Root'. By convention,
+        `pred[root] = 0`. If 'Type'='tree' and a node is not in the same
+        component as 'Root', `pred[node] = np.nan`.
+        For 'Type'='forest', nodes in components other than the root are
+        still given a valid parent within their own connected component,
+        but if you only care about the root's component, you can disregard
+        the rest.
+
+    MATLAB Name-Value Parameters
+    ----------------------------
+    Method : {'dense','sparse'}, default='dense'
+        - 'dense'  => Use Prim's algorithm.
+        - 'sparse' => Use Kruskal's algorithm.
+
+    Root : int or str, default=1
+        The root node. If 'Method'='dense', the MST is grown from this root
+        (Prim’s algorithm). If 'Method'='sparse' (Kruskal), the root is only
+        used to define the predecessor array.
+
+    Type : {'tree','forest'}, default='tree'
+        - 'tree'   => Return MST (or actually a spanning tree) only for the
+                      connected component containing 'Root'.
+        - 'forest' => Return a minimum spanning forest for **all** components
+                      of G.
+
+    Notes
+    -----
+    - `nx.minimum_spanning_tree(G, weight='weight', algorithm='kruskal')`
+      or `algorithm='prim'` is used behind the scenes.
+    - Edges are assumed to have a 'weight' attribute. If not present, default
+      weight = 1.
+    - For a disconnected graph and Type='tree', T contains only the MST of
+      the root’s connected component.
+    - The predecessor array is computed by doing a BFS from the root on the
+      MST subgraph. Edges are directed away from the root in `pred`.
+
+    Examples
+    --------
+    >>> # Suppose G is an undirected NetworkX graph with N=5 nodes
+    >>> import networkx as nx
+    >>> G = nx.Graph()
+    >>> G.add_weighted_edges_from([
+    ...     (1,2,4), (1,3,2), (2,3,1), (2,4,5), (3,5,7)
+    ... ])
+    >>> # Basic usage, returning MST of the connected component containing node=1:
+    >>> T, pred = minspantree(G)
+    >>> list(T.edges(data=True))
+    [(1, 3, {'weight': 2}), (2, 3, {'weight': 1}), (2, 4, {'weight': 5}), (3, 5, {'weight': 7})]
+    >>> pred
+    {1: 0, 3: 1, 2: 3, 4: 2, 5: 3}
+    >>> # Use 'Method'='sparse' => Kruskal, 'Type'='forest'
+    >>> T2, pred2 = minspantree(G, 'Method','sparse','Type','forest')
+    >>> list(T2.edges(data=True))
+    [(1, 3, {'weight': 2}), (2, 3, {'weight': 1}), (2, 4, {'weight': 5}), (3, 5, {'weight': 7})]
+    >>> pred2
+    {1: 0, 3: 1, 2: 3, 4: 2, 5: 3}
+    """
+
+    # ----------------------------------------
+    # 1) Default parameters
+    # ----------------------------------------
+    method = 'dense'  # 'dense' => Prim, 'sparse' => Kruskal
+    root   = 1        # default root node
+    tree_type = 'tree'  # 'tree' or 'forest'
+
+    # ----------------------------------------
+    # 2) Parse MATLAB-style name-value pairs
+    # ----------------------------------------
+    i = 0
+    while i < len(args):
+        if i+1 >= len(args):
+            raise ValueError(f"Parameter '{args[i]}' is missing a value.")
+        p_name = str(args[i]).lower()
+        p_val  = args[i+1]
+        i += 2
+        if p_name == 'method':
+            method = p_val
+        elif p_name == 'root':
+            root = p_val
+        elif p_name == 'type':
+            tree_type = p_val
+        else:
+            raise ValueError(f"Unrecognized parameter name: '{args[i]}'")
+
+    # Also parse keyword arguments
+    for key, val in kwargs.items():
+        k_lower = key.lower()
+        if k_lower == 'method':
+            method = val
+        elif k_lower == 'root':
+            root = val
+        elif k_lower == 'type':
+            tree_type = val
+        else:
+            raise ValueError(f"Unrecognized parameter: '{key}'")
+
+    # Validate method
+    if method not in ('dense','sparse'):
+        raise NotImplementedError("Only 'dense' (Prim) or 'sparse' (Kruskal) are supported.")
+
+    # Validate type
+    if tree_type not in ('tree','forest'):
+        raise NotImplementedError("Only 'tree' or 'forest' are supported for 'Type'.")
+
+    # Ensure G is a NetworkX Graph
+    if not isinstance(G, nx.Graph):
+        raise TypeError("G must be a networkx.Graph (undirected) for this wrapper.")
+
+    # If node names are strings in MATLAB, we handle them as well (just pass them directly).
+    # NetworkX doesn't mind if root is a string or int as long as it is in G.
+
+    # ----------------------------------------
+    # 3) Build MST or forest using NetworkX
+    #    - 'dense' => Prim's
+    #    - 'sparse' => Kruskal's
+    # ----------------------------------------
+    algo = 'prim' if method=='dense' else 'kruskal'
+    # NetworkX minimum_spanning_tree does it for all components => effectively a forest.
+    # We'll get a spanning forest if the graph is disconnected.
+    MST_all = nx.minimum_spanning_tree(G, weight='weight', algorithm=algo)
+
+    # ----------------------------------------
+    # 4) If user wants Type='tree', we keep only
+    #    the component containing 'root'
+    #    (like MATLAB's minspantree would do).
+    # ----------------------------------------
+    if tree_type == 'tree':
+        # Extract the connected component containing root
+        if root not in MST_all:
+            # If root is not in MST, it's possible root not in G at all,
+            # or is an isolated node with no edges in G
+            raise ValueError(f"Specified root node '{root}' not found in the graph.")
+        # We can find all nodes in that connected component
+        connected_nodes = nx.node_connected_component(MST_all, root)
+        # Subgraph containing only that component
+        MST_sub = MST_all.subgraph(connected_nodes).copy()
+        T = nx.Graph()
+        T.add_nodes_from(MST_sub.nodes(data=True))
+        T.add_edges_from(MST_sub.edges(data=True))
+    else:
+        # 'forest' => keep the entire MST with edges for all components
+        T = MST_all.copy()
+
+    # ----------------------------------------
+    # 5) Build predecessor array, pred
+    #    pred[node] = its parent in BFS from root.
+    #    For 'tree' mode, any node not in that comp => pred[node] = NaN
+    #    In 'forest' mode, we do a BFS from root, but also BFS from every
+    #    other root in the MST if needed.
+    # ----------------------------------------
+    pred = dict()
+    for node in T.nodes():
+        pred[node] = np.nan  # initialize
+
+    # If root in T, BFS from 'root' assigns parent.
+    # But if 'forest', we also BFS from other components to get their parents.
+    # We'll simulate MATLAB’s approach:
+    #   - If 'tree': BFS from root only.
+    #   - If 'forest': BFS from root, then BFS from an arbitrary node in each other component as well.
+
+    def assign_pred_by_bfs(start_node):
+        from collections import deque
+        queue = deque([start_node])
+        pred[start_node] = 0  # per MATLAB convention for the root
+        while queue:
+            curr = queue.popleft()
+            for nbr in T.neighbors(curr):
+                # If pred[nbr] is still nan => unvisited
+                if np.isnan(pred[nbr]):
+                    pred[nbr] = curr
+                    queue.append(nbr)
+
+    if root in T:
+        assign_pred_by_bfs(root)
+
+    if tree_type == 'forest':
+        # There may be other components. For each connected component, pick any
+        # node that is still np.nan and do BFS from it if no parent assigned.
+        unvisited = [n for n in T.nodes() if np.isnan(pred[n])]
+        while unvisited:
+            start = unvisited[0]
+            assign_pred_by_bfs(start)
+            unvisited = [n for n in T.nodes() if np.isnan(pred[n])]
+
+    # If tree_type='tree', then nodes not in the root's component remain np.nan
+
+    return T, pred
