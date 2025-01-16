@@ -683,11 +683,12 @@ test_silhouette()
 
 2. **Silhouette Analysis**:
    - The silhouette score is computed for each data point as:
-     $$ s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))} $$
+
+     ![s(i) equation](https://latex.codecogs.com/svg.latex?s(i)%20=%20\frac{b(i)-a(i)}{\max(a(i),%20b(i))})
 
      where:
-     - \(a(i)\): Average intra-cluster distance (distance to other points in the same cluster).
-     - \(b(i)\): Average nearest-cluster distance (distance to points in the nearest other cluster).
+     - $a(i)$: Average intra-cluster distance (distance to other points in the same cluster).
+     - $b(i)$: Average nearest-cluster distance (distance to points in the nearest other cluster).
 
 3. **Default Case**:
    - By default, the function computes the silhouette scores using the **Euclidean distance** and visualizes the silhouette plot.
