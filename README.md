@@ -524,7 +524,7 @@ test_minspantree()
 - **MST (Prim's Algorithm)**: Highlights the MST computed using Prim's algorithm, rooted at node 1.
 - **MST (Kruskal's Algorithm)**: Displays the MST computed using Kruskal's algorithm, including a spanning forest for all components.
 
-![Minimum Spanning Tree](examples/minspanningtree.png)
+![Minimum Spanning Tree](examples/minspantree.png)
 
 ---
 
