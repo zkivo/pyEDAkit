@@ -96,4 +96,4 @@ Feel free to fork this repository, report issues, or contribute by adding new MA
 
 ## License
 This project is licensed under the MIT License. See `LICENSE` for more details.
-```
+
