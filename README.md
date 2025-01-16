@@ -77,62 +77,93 @@ This repository implements MATLAB-style functions in Python for various data ana
 ---
 # Examples
 ## Clustering
-### 1. **`Linkage` function**
+### 1. **`Linkage` Function**
+
+This example demonstrates the usage of the `linkage` function for hierarchical clustering. The `linkage` function builds a hierarchical cluster tree (also known as a dendrogram) using various linkage methods. We show two use cases: clustering a large dataset into groups and visualizing the hierarchy using a dendrogram.
+
+---
+
+#### Example:
 ```python
-# Step 1: Randomly generate sample data with 20,000 observations
-np.random.seed(0)  # For reproducibility
-X = np.random.rand(20000, 3)
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
+from scipy.spatial.distance import squareform
+from mpl_toolkits.mplot3d import Axes3D
 
-# Step 2: Create a hierarchical cluster tree using the ward linkage method
-Z = linkage(X, method='ward')
+def test_linkage():
+    # Step 1: Randomly generate sample data with 20,000 observations
+    np.random.seed(0)  # For reproducibility
+    X = np.random.rand(20000, 3)
 
-# Step 3: Cluster the data into a maximum of four groups
-max_clusters = 4
-cluster_labels = fcluster(Z, max_clusters, criterion='maxclust')
+    # Step 2: Create a hierarchical cluster tree using the ward linkage method
+    Z = linkage(X, method='ward')
 
-# Step 4: Plot the result in 3D
-fig = plt.figure(figsize=(10, 8))
-ax = fig.add_subplot(111, projection='3d')
+    # Step 3: Cluster the data into a maximum of four groups
+    max_clusters = 4
+    cluster_labels = fcluster(Z, max_clusters, criterion='maxclust')
 
-scatter = ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=cluster_labels, cmap='viridis', s=10)
-ax.set_xlabel('X-axis')
-ax.set_ylabel('Y-axis')
-ax.set_zlabel('Z-axis')
+    # Step 4: Plot the result in 3D
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection='3d')
 
-plt.title('3D Scatter Plot of Hierarchical Clustering')
-plt.colorbar(scatter, ax=ax, label='Cluster Label')
-plt.show()
+    scatter = ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=cluster_labels, cmap='viridis', s=10)
+    ax.set_xlabel('X-axis')
+    ax.set_ylabel('Y-axis')
+    ax.set_zlabel('Z-axis')
 
-# Step 5: Define the dissimilarity matrix
-X = np.array([
-    [0, 1, 2, 3],
-    [1, 0, 4, 5],
-    [2, 4, 0, 6],
-    [3, 5, 6, 0]
-])
+    plt.title('3D Scatter Plot of Hierarchical Clustering')
+    plt.colorbar(scatter, ax=ax, label='Cluster Label')
+    plt.show()
 
-# Step 6: Convert the dissimilarity matrix to vector form using squareform
-y = squareform(X)
+    # Step 5: Define the dissimilarity matrix
+    X = np.array([
+        [0, 1, 2, 3],
+        [1, 0, 4, 5],
+        [2, 4, 0, 6],
+        [3, 5, 6, 0]
+    ])
 
-# Step 7: Create a hierarchical cluster tree using the 'complete' method
-Z = linkage(y, method='complete')
+    # Step 6: Convert the dissimilarity matrix to vector form using squareform
+    y = squareform(X)
 
-# Step 8: Print the resulting linkage matrix
-print("Linkage matrix (Z):")
-print(Z)
+    # Step 7: Create a hierarchical cluster tree using the 'complete' method
+    Z = linkage(y, method='complete')
 
-# Step 9: Plot the dendrogram
-plt.figure(figsize=(10, 6))
-dendrogram(
-    Z,
-    labels=[1, 2, 3, 4],  # Use MATLAB-style indices for the leaf nodes
-    leaf_font_size=10      # Adjust font size for clarity
-)
-plt.title('Dendrogram')
-plt.xlabel('Leaf Nodes')
-plt.ylabel('Linkage Distance')
-plt.show()
+    # Step 8: Print the resulting linkage matrix
+    print("Linkage matrix (Z):")
+    print(Z)
+
+    # Step 9: Plot the dendrogram
+    plt.figure(figsize=(10, 6))
+    dendrogram(
+        Z,
+        labels=[1, 2, 3, 4],  # Use MATLAB-style indices for the leaf nodes
+        leaf_font_size=10      # Adjust font size for clarity
+    )
+    plt.title('Dendrogram')
+    plt.xlabel('Leaf Nodes')
+    plt.ylabel('Linkage Distance')
+    plt.show()
+
+test_linkage()
 ```
+
+---
+
+### Visualizations
+
+#### 1. **3D Scatter Plot of Hierarchical Clustering**
+This plot visualizes the clusters formed by hierarchical clustering on a randomly generated dataset of 20,000 observations. The data points are colored by their cluster labels (maximum of 4 clusters).
+
+![3D Scatter Plot](attachment://examples/hierarchical_clustering_scatter_3d.png)
+
+---
+
+#### 2. **Dendrogram**
+The dendrogram represents the hierarchical clustering of a small dataset, built from a dissimilarity matrix. The `complete` linkage method is used to compute the hierarchical structure, and the result is visualized as a dendrogram.
+
+![Dendrogram](attachment://examples/dendrogram.png)
 
 
 ## Dependencies
