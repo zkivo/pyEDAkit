@@ -444,6 +444,8 @@ Process finished with exit code 0
 4. **Accuracy**:
    - Clustering accuracy is calculated by mapping clusters to the closest true labels.
 
+---
+
 ### **`minspantree` - Minimum Spanning Tree**
 
 The `minspantree` function computes the Minimum Spanning Tree (MST) of a given graph. It supports both Prim's and Kruskal's algorithms and can return the MST for a specific component (`Type='tree'`) or the entire graph (`Type='forest'`).
