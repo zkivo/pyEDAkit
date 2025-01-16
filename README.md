@@ -79,7 +79,7 @@ This repository implements MATLAB-style functions in Python for various data ana
 !IMPORTANT: The examples are not finished yet, they are just a draft of what we are going to implement.
 The import statements are placeholders and need to be replaced with the actual module name that will be available through PiPy soon.
 ## Clustering
-### 1. **`Linkage` Function**
+### **`Linkage` Function**
 
 This example demonstrates the usage of the `linkage` function for hierarchical clustering. The `linkage` function builds a hierarchical cluster tree (also known as a dendrogram) using various linkage methods. We show two use cases: clustering a large dataset into groups and visualizing the hierarchy using a dendrogram.
 
@@ -88,7 +88,8 @@ This example demonstrates the usage of the `linkage` function for hierarchical c
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.cluster.hierarchy import linkage, fcluster, dendrogram
+from pyEDAkit.clustering import linkage, cluster
+from scipy.cluster.hierarchy import dendrogram
 from scipy.spatial.distance import squareform
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -102,7 +103,7 @@ def test_linkage():
 
     # Step 3: Cluster the data into a maximum of four groups
     max_clusters = 4
-    cluster_labels = fcluster(Z, max_clusters, criterion='maxclust')
+    cluster_labels = cluster(Z, max_clusters, criterion='maxclust')
 
     # Step 4: Plot the result in 3D
     fig = plt.figure(figsize=(10, 8))
@@ -152,19 +153,19 @@ test_linkage()
 
 ### Visualizations
 
-#### 1. **3D Scatter Plot of Hierarchical Clustering**
+#### **3D Scatter Plot of Hierarchical Clustering**
 This plot visualizes the clusters formed by hierarchical clustering on a randomly generated dataset of 20,000 observations. The data points are colored by their cluster labels (maximum of 4 clusters).
 
 ![3D Scatter Plot](examples/hierarchical_clustering_scatter_3d.png)
 
 ---
 
-#### 2. **Dendrogram**
+#### **Dendrogram**
 The dendrogram represents the hierarchical clustering of a small dataset, built from a dissimilarity matrix. The `complete` linkage method is used to compute the hierarchical structure, and the result is visualized as a dendrogram.
 
 ![Dendrogram](examples/dendrogram.png)
 
-### 2. **`Cluster` Function**
+### **`Cluster` Function**
 
 The `cluster` function is a MATLAB-style wrapper for SciPy's `fcluster` function, allowing flexible and intuitive hierarchical clustering. This example demonstrates its usage with various clustering criteria, such as distance thresholds, inconsistent measures, and a fixed number of clusters. Additionally, it supports multiple cutoffs to produce a matrix of cluster assignments.
 
@@ -174,8 +175,7 @@ The `cluster` function is a MATLAB-style wrapper for SciPy's `fcluster` function
 
 ```python
 import numpy as np
-from scipy.cluster.hierarchy import linkage
-from cluster import cluster  # Assuming the cluster function is implemented and imported
+from pyEDAkit.clustering import cluster, linkage 
 
 def test_cluster():
     # Generate sample data
