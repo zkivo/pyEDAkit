@@ -755,8 +755,6 @@ This plot is useful to evaluate the clustering quality visually.
 
 
 
----
----
 
 ## Dependencies
 This repository requires the following Python libraries:
