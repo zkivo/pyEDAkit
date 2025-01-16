@@ -76,6 +76,8 @@ This repository implements MATLAB-style functions in Python for various data ana
 
 ---
 # Examples
+!IMPORTANT: The examples are not finished yet, they are just a draft of what we are going to implement.
+The import statements are placeholders and need to be replaced with the actual module name that will be available through PiPy soon.
 ## Clustering
 ### 1. **`Linkage` Function**
 
