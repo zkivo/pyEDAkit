@@ -9,7 +9,8 @@ from sklearn.metrics import accuracy_score
 from matplotlib.colors import ListedColormap
 from pyEDAkit.clustering import kmeans
 import networkx as nx
-from pyEDAkit.clustering import minspantree
+from pyEDAkit.clustering import minspantree, cluster, cophenet
+from pyEDAkit.IntrinsicDimensionality import pdist
 
 ########################################################
 ############## TEST LINKAGE FUNCTION ###################
@@ -261,9 +262,28 @@ def test_minspantree():
     print("Predecessors (Kruskal):", pred_kruskal)
 
 
+def test_cophenet():
+    # Generate sample data
+    np.random.seed(42)
+    X = np.vstack([
+        np.random.rand(5, 2),
+        np.random.rand(5, 2) + 5
+    ])
+    # Pairwise distances and linkage
+    Y = pdist(X)
+    Z = linkage(Y, method='average')
+
+    # Cophenetic correlation
+    c, d = cophenet(Z, Y)
+    print("Cophenetic correlation coefficient:", c)
+    print("Shape of cophenetic distances:", d.shape)
+
+
+
 if __name__ == '__main__':
     # test_linkage()
     # test_cluster()
     # test_kmeans()
     # test_minspantree()
+    test_cophenet()
     pass
