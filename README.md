@@ -156,14 +156,14 @@ test_linkage()
 #### 1. **3D Scatter Plot of Hierarchical Clustering**
 This plot visualizes the clusters formed by hierarchical clustering on a randomly generated dataset of 20,000 observations. The data points are colored by their cluster labels (maximum of 4 clusters).
 
-![3D Scatter Plot](attachment://examples/hierarchical_clustering_scatter_3d.png)
+![3D Scatter Plot](examples/hierarchical_clustering_scatter_3d.png)
 
 ---
 
 #### 2. **Dendrogram**
 The dendrogram represents the hierarchical clustering of a small dataset, built from a dissimilarity matrix. The `complete` linkage method is used to compute the hierarchical structure, and the result is visualized as a dendrogram.
 
-![Dendrogram](attachment://examples/dendrogram.png)
+![Dendrogram](examples/dendrogram.png)
 
 
 ## Dependencies
