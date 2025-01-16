@@ -645,6 +645,7 @@ Process finished with exit code 0
 - The **cophenetic distances** (`d`) closely match the original distances in `Y`.
 - The dendrogram visually confirms the clustering structure, with two distinct groups evident.
 
+---
 
 ### **`silhouette` - Evaluating Clustering Quality**
 
