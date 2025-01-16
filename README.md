@@ -646,10 +646,106 @@ Process finished with exit code 0
 - The dendrogram visually confirms the clustering structure, with two distinct groups evident.
 
 
+### **`silhouette` - Evaluating Clustering Quality**
+
+The `silhouette` function computes silhouette scores for clustering and provides an optional visualization of the silhouette plot. It measures how similar an object is to its own cluster compared to other clusters, with scores ranging from `-1` to `1`. Higher scores indicate better-defined clusters.
+
+
+#### **Example Usage**
+
+```python
+import numpy as np
+from pyEDAkit.clustering import silhouette
+
+def test_silhouette():
+    # Step 1: Generate synthetic data
+    X = np.random.rand(20, 2)  # 20 data points with 2 features
+    labels = np.random.randint(0, 3, size=20)  # Assign random labels for 3 clusters
+
+    # Step 2: Silhouette analysis using default Euclidean distance with visualization
+    s, fig = silhouette(X, labels)  # Default parameters
+    print("Silhouette values:\n", s)
+
+    # Step 3: Silhouette analysis using Minkowski distance (p=3) without visualization
+    s2, _ = silhouette(X, labels, Distance='minkowski', DistParameter={'p': 3}, do_plot=False)
+    print("Silhouette values with Minkowski distance, p=3:\n", s2)
+
+# Run the example
+test_silhouette()
+```
+
+#### **Explanation**
+
+1. **Input Data**:
+   - `X`: The dataset with shape `(n_samples, n_features)`. In this example, it consists of 20 randomly generated data points in 2D space.
+   - `labels`: Cluster assignments for each data point. Random labels are generated for three clusters.
+
+2. **Silhouette Analysis**:
+   - The silhouette score is computed for each data point as:
+     \[
+     s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))}
+     \]
+     where:
+     - \( a(i) \): Average intra-cluster distance (distance to other points in the same cluster).
+     - \( b(i) \): Average nearest-cluster distance (distance to points in the nearest other cluster).
+
+3. **Default Case**:
+   - By default, the function computes the silhouette scores using the **Euclidean distance** and visualizes the silhouette plot.
+
+4. **Custom Distance**:
+   - In the second case, the function uses the **Minkowski distance** with \( p = 3 \) (specified using the `DistParameter` argument). No plot is produced (`do_plot=False`).
+
+5. **Output**:
+   - `s`: An array of silhouette scores for each data point.
+   - `fig`: A matplotlib figure object showing the silhouette plot (if visualization is enabled).
 
 
 
+#### **Expected Output**
 
+For the given random data, the output will include:
+
+1. **Silhouette Scores (Default Distance)**:
+   ```Bash
+    Silhouette values:
+    [-0.20917609 -0.11501692 -0.09117026  0.07603928 -0.49128607 -0.34661769
+    -0.20534282 -0.02257866 -0.15532452 -0.36940948 -0.26504272  0.32133183
+    -0.08229476  0.30387826 -0.09858198 -0.26869494 -0.59434334  0.08777368
+    0.11872492  0.06386749]
+   ```
+
+2. **Silhouette Scores (Minkowski Distance, \( p=3 \))**:
+   ```Bash
+    Silhouette values with Minkowski distance, p=3:
+     [-0.19668877 -0.14506527 -0.06741624  0.07712329 -0.48447927 -0.32749879
+     -0.1640281  -0.04252481 -0.14681262 -0.39123349 -0.26663026  0.3170098
+     -0.09092208  0.30229521 -0.06645392 -0.27165836 -0.5954229   0.07757885
+      0.11677314  0.06568025]
+   ```
+
+3. **Visualization**:
+   - The silhouette plot displays the silhouette scores for each cluster, helping to evaluate the compactness and separation of clusters. The cluster with the largest average silhouette score is better defined.
+
+
+#### **Silhouette Plot Visualization**
+
+The silhouette plot provides:
+- **Bars**: Represent silhouette scores for individual points, grouped by clusters.
+- **Dashed Line**: Represents the average silhouette score for each cluster.
+
+This plot is useful to evaluate the clustering quality visually.
+
+
+
+#### **Notes**
+- The silhouette score for a single point:
+  - **Close to 1**: Well-clustered.
+  - **Close to 0**: Overlapping clusters.
+  - **Negative**: Misclassified point.
+- Custom distance metrics can be specified via the `Distance` parameter (e.g., Minkowski, Manhattan, etc.).
+
+
+---
 
 
 

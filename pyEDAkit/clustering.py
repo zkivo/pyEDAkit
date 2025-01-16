@@ -5,6 +5,8 @@ from scipy.spatial.distance import pdist, squareform, cdist
 from sklearn.cluster import KMeans
 from scipy.spatial.distance import cdist
 from scipy.cluster.hierarchy import cophenet as scipy_cophenet
+import matplotlib.pyplot as plt
+from sklearn.metrics import silhouette_samples
 import networkx as nx
 
 def linkage(X,
@@ -839,4 +841,128 @@ def cophenet(Z, Y):
     """
     c, d = scipy_cophenet(Z, Y)
     return c, d
+
+
+def silhouette(X, clust, Distance='euclidean', DistParameter=None,
+               do_plot=True):
+    """
+    Silhouette plot and values, mimicking MATLAB's silhouette function.
+
+    Parameters
+    ----------
+    X : array-like of shape (n_samples, n_features)
+        The input data matrix. Rows correspond to observations, columns
+        correspond to features (variables).
+    clust : array-like of shape (n_samples,)
+        Cluster labels (integers) of each observation in X.
+    Distance : str or callable, optional (default='euclidean')
+        Distance metric to use. Must be recognized by scikit-learn’s
+        silhouette_samples, e.g., 'euclidean', 'manhattan', 'cosine',
+        'precomputed'. If given a function handle, we raise
+        NotImplementedError in this basic wrapper.
+    DistParameter : dict or other, optional
+        Additional distance-metric parameter(s). For example, if
+        Distance='minkowski', you can pass DistParameter={'p': 3} to use
+        Minkowski exponent p=3. If using an unsupported or custom function,
+        we raise an error.
+    do_plot : bool, optional (default=True)
+        Whether to create the silhouette plot. If False, only the silhouette
+        values are computed and returned.
+
+    Returns
+    -------
+    s : ndarray of shape (n_samples,)
+        The silhouette value for each observation. Values range from -1 to 1,
+        where higher values indicate that the observation is well matched
+        to its cluster.
+    h : matplotlib.figure.Figure or None
+        The figure handle for the silhouette plot if `do_plot=True`.
+        If `do_plot=False`, we return None.
+
+    Notes
+    -----
+    1) This function is a wrapper around sklearn.metrics.silhouette_samples.
+    2) If you specify a custom distance function handle, we raise
+       NotImplementedError.
+    3) For specialized distance metrics (like 'seuclidean' or 'mahalanobis'),
+       you may need to manually compute a distance matrix and pass
+       Distance='precomputed'.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from pyEDAkit.clustering import silhouette
+    >>> X = np.random.rand(10, 2)
+    >>> clust = np.array([0,0,0,0,1,1,1,1,0,1])  # Some cluster labels
+    >>> # 1) Basic call with default distance=euclidean, and show the plot
+    >>> s, fig = silhouette(X, clust)
+    >>> s
+    array([ 0.62,  0.68,  0.58, ...,  0.55])  # silhouette values
+    >>> # 2) Minkowski distance with exponent 3 (DistParameter)
+    >>> s2, fig2 = silhouette(X, clust, Distance='minkowski', DistParameter={'p':3})
+    >>> # 3) If you only want silhouette values (no plot):
+    >>> s3, _ = silhouette(X, clust, do_plot=False)
+    """
+
+    # --- 1) Handle custom function distances ---
+    if callable(Distance):
+        raise NotImplementedError("Custom distance function handles are not supported.")
+
+    # --- 2) Prepare metric kwargs for silhouette_samples. ---
+    metric_kwargs = {}
+    if isinstance(DistParameter, dict):
+        metric_kwargs.update(DistParameter)
+
+    # scikit-learn silhouette_samples can handle these metrics natively:
+    #   'euclidean', 'manhattan', 'cosine', 'precomputed', etc.
+    # Or 'minkowski' with a dict DistParameter like {'p': 3}.
+
+    # --- 3) Compute silhouette samples. This returns a silhouette value per sample. ---
+    s = silhouette_samples(X, clust, metric=Distance, **metric_kwargs)
+
+    # If do_plot=False, we skip the figure creation and return (s, None)
+    if not do_plot:
+        return s, None
+
+    # --- 4) Create the silhouette plot in a style similar to MATLAB. ---
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    # For each cluster, we extract the silhouette scores and plot them in ascending order.
+    labels = np.unique(clust)
+    n_clusters = len(labels)
+
+    # We'll keep track of the y-limits for the bar boundaries.
+    y_lower = 0
+    for i, label in enumerate(labels):
+        # Extract silhouette scores for samples in cluster i
+        ith_cluster_sil_values = s[clust == label]
+        ith_cluster_sil_values.sort()
+        size_cluster_i = ith_cluster_sil_values.shape[0]
+        y_upper = y_lower + size_cluster_i
+
+        color = plt.cm.nipy_spectral(float(i) / n_clusters)
+        ax.barh(range(y_lower, y_upper),
+                ith_cluster_sil_values,
+                height=1.0,
+                edgecolor='none',
+                color=color)
+        # Label the silhouette plots with their cluster numbers in the middle
+        ax.text(-0.05, y_lower + 0.5 * size_cluster_i, str(label))
+
+        # Compute next y_lower for next cluster
+        y_lower = y_upper
+
+    ax.set_xlabel("Silhouette coefficient values")
+    ax.set_ylabel("Cluster label")
+    # The vertical line for average silhouette score:
+    avg_score = np.mean(s)
+    ax.axvline(x=avg_score, color="red", linestyle="--")
+    ax.set_yticks([])  # Clear the y-axis labels / ticks
+
+    ax.set_xlim([min(s) - 0.1, 1.0])
+    ax.set_ylim([0, len(X)])
+    ax.set_title(f"Silhouette plot for {n_clusters} clusters")
+
+    plt.tight_layout()
+    return s, fig
 

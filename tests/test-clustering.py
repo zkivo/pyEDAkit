@@ -11,6 +11,7 @@ from pyEDAkit.clustering import kmeans
 import networkx as nx
 from pyEDAkit.clustering import minspantree, cluster, cophenet
 from pyEDAkit.IntrinsicDimensionality import pdist
+from pyEDAkit.clustering import silhouette
 
 ########################################################
 ############## TEST LINKAGE FUNCTION ###################
@@ -298,10 +299,25 @@ def test_cophenet():
     plt.show()
 
 
+def test_silhouette():
+    # Suppose we have data in X and cluster labels in "labels"
+    X = np.random.rand(20, 2)
+    labels = np.random.randint(0, 3, size=20)  # 3 clusters
+
+    # 1) Use the default (Euclidean) distance and produce a plot
+    s, fig = silhouette(X, labels)
+    print("Silhouette values:\n", s)
+
+    # 2) Minkowski distance with exponent p=3, do not plot
+    s2, _ = silhouette(X, labels, Distance='minkowski', DistParameter={'p': 3}, do_plot=False)
+    print("Silhouette values with Minkowski distance, p=3:\n", s2)
+
+
 if __name__ == '__main__':
     # test_linkage()
     # test_cluster()
     # test_kmeans()
     # test_minspantree()
-    test_cophenet()
+    # test_cophenet()
+    test_silhouette()
     pass
