@@ -263,7 +263,7 @@ def test_minspantree():
 
 
 if __name__ == '__main__':
-    test_linkage()
-    # test_cluster()
+    # test_linkage()
+    test_cluster()
     # test_kmeans()
     # test_minspantree()

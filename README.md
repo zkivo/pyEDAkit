@@ -162,6 +162,77 @@ The dendrogram represents the hierarchical clustering of a small dataset, built 
 
 ![Dendrogram](examples/dendrogram.png)
 
+### 2. **`Cluster` Function**
+
+The `cluster` function is a MATLAB-style wrapper for SciPy's `fcluster` function, allowing flexible and intuitive hierarchical clustering. This example demonstrates its usage with various clustering criteria, such as distance thresholds, inconsistent measures, and a fixed number of clusters. Additionally, it supports multiple cutoffs to produce a matrix of cluster assignments.
+
+---
+
+#### Example:
+
+```python
+import numpy as np
+from scipy.cluster.hierarchy import linkage
+from cluster import cluster  # Assuming the cluster function is implemented and imported
+
+def test_cluster():
+    # Generate sample data
+    X = np.random.rand(10, 3)
+
+    # Compute linkage matrix
+    Z = linkage(X, method='ward')
+
+    # 1) Cut off by distance = 0.7
+    T_distance = cluster(Z, 'Cutoff', 0.7, 'Criterion', 'distance')
+
+    # 2) Cut off by inconsistent measure
+    T_inconsist = cluster(Z, 'Cutoff', 1.5)
+
+    # 3) Force a maximum of 3 clusters
+    T_maxclust = cluster(Z, 'MaxClust', 3)
+
+    # 4) Multiple cutoffs -> T is an m-by-l matrix
+    T_multi = cluster(Z, 'Cutoff', [0.7, 1.0, 1.5], 'Criterion', 'distance')
+    print(T_multi.shape)  # (10, 3)
+
+test_cluster()
+```
+
+---
+
+#### Output:
+
+This example showcases the flexibility of the `cluster` function. Below is the output from the final step, where multiple cutoffs are used:
+
+```bash
+(10, 3)
+```
+
+---
+
+### Key Points:
+
+1. **Cut off by Distance**: Creates clusters by specifying a distance threshold. For example:
+   ```python
+   T_distance = cluster(Z, 'Cutoff', 0.7, 'Criterion', 'distance')
+   ```
+
+2. **Cut off by Inconsistent Measure**: Uses the default 'inconsistent' criterion for clustering:
+   ```python
+   T_inconsist = cluster(Z, 'Cutoff', 1.5)
+   ```
+
+3. **Force a Maximum Number of Clusters**: Ensures the data is divided into a fixed number of clusters:
+   ```python
+   T_maxclust = cluster(Z, 'MaxClust', 3)
+   ```
+
+4. **Multiple Cutoffs**: Produces a matrix where each column corresponds to cluster assignments for a specific cutoff:
+   ```python
+   T_multi = cluster(Z, 'Cutoff', [0.7, 1.0, 1.5], 'Criterion', 'distance')
+   ```
+
+The flexibility of `cluster` makes it an ideal choice for hierarchical clustering tasks requiring MATLAB-like functionality in Python.
 
 ## Dependencies
 This repository requires the following Python libraries:
