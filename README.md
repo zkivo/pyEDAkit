@@ -687,7 +687,6 @@ test_silhouette()
      $$ 
         s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))} 
      $$
-     
      where:
      - $a(i)$: Average intra-cluster distance (distance to other points in the same cluster).
      - $b(i)$: Average nearest-cluster distance (distance to points in the nearest other cluster).
