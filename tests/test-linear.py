@@ -18,7 +18,7 @@ y_names = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
 # Principal Component Analysis (PCA)
 # -----------------------------------
 
-# eda_lin.PCA(X, d=3, plot=True)
+eda_lin.PCA(X, d=3, plot=True)
 
 # ----------------------------------
 # Singular Value Decomposition (SVD)
@@ -26,7 +26,7 @@ y_names = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
 #   covariance matrix
 # ----------------------------------
 
-# eda_lin.SVD(X, plot=True)
+eda_lin.SVD(X, plot=True)
 
 # ----------------------------------
 # Non-negative Matrix Factorization (NMF)
@@ -35,7 +35,7 @@ y_names = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
 # each component contributes to the original matrix.
 # ----------------------------------
 
-# eda_lin.NMF(X, d=4, plot=True)
+eda_lin.NMF(X, d=4, plot=True)
 
 # ----------------------------------
 # Factor Analysis
