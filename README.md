@@ -1075,7 +1075,7 @@ plt.show()
 
 ![3D Scatter Plot with Intrinsic Dimensions](examples/Intrinsic_Dim_Scene_1.png)
 
----
+
 
 #### **2. 1D Helix**
 
@@ -1115,7 +1115,7 @@ print("PackingNumbers:", idhat)
 
 ![1D Helix](examples/helix.png)
 
----
+
 
 #### **3. 3D Helix**
 
@@ -1155,7 +1155,7 @@ print("PackingNumbers:", idhat)
 
 ![3D Helix](examples/3d_helix.png)
 
----
+
 
 These examples illustrate the application of various intrinsic dimensionality estimation methods to datasets with different geometries. The visualizations help validate the results by showing dimensionality estimates in their natural geometric contexts.
 
