@@ -22,6 +22,17 @@ This repository implements MATLAB-style functions in Python for various data ana
     - Number of replicates and maximum iterations.
   - Outputs cluster assignments, centroids, and within-cluster sum of distances.
 
+- **Silhouette Analysis** (`silhouette`):
+  - Computes silhouette values to evaluate clustering quality.
+  - Supports various distance metrics, including `euclidean`, `manhattan`, `cosine`, and `minkowski`.
+  - Generates detailed silhouette plots for cluster visualization.
+
+- **Silhouette Criterion Evaluation** (`SilhouetteEvaluation` class):
+  - Evaluates clustering solutions for different cluster counts (`k`) using the silhouette criterion.
+  - Identifies the optimal number of clusters (`OptimalK`) based on silhouette scores.
+  - Handles missing data and supports weighted or unweighted silhouette averages.
+  - Visualizes silhouette criterion scores vs. the number of clusters.
+
 - **PCA and SVD**:
   - `PCA`: Computes Principal Components and visualizes scree plots and scatter matrices.
   - `SVD`: Performs Singular Value Decomposition with visualization of singular values.
@@ -73,6 +84,15 @@ This repository implements MATLAB-style functions in Python for various data ana
 - **Sphering (`sphering`)**:
   - Whitens data, decorrelating variables and setting variance to 1.
 
+---
+
+### 5. **Clustering Quality Metrics**
+- **Cophenetic Correlation** (`cophenet`):
+  - Computes the cophenetic correlation coefficient to measure how well a dendrogram preserves the original pairwise distances.
+
+- **Silhouette Evaluation and Visualization**:
+  - `silhouette`: Computes silhouette values and plots silhouette scores for each cluster.
+  - `SilhouetteEvaluation`: Evaluates and visualizes the silhouette criterion for determining the optimal number of clusters.
 
 ---
 # Examples
@@ -756,6 +776,7 @@ The **Silhouette Evaluation** example demonstrates how to use the `SilhouetteEva
 
 ```python
 from pyEDAkit.clustering import SilhouetteEvaluation
+import numpy as np
 from numpy.random import default_rng
 
 def test_eval_silhouette():
