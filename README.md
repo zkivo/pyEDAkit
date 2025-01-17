@@ -857,7 +857,7 @@ This example demonstrates the importance of silhouette analysis for optimal clus
 
 ---
 
-### Dimensionality Reduction Examples
+## Dimensionality Reduction Examples
 
 This section provides examples demonstrating how to use various dimensionality reduction techniques and their visualizations with the `pyEDAkit` library. The dataset used in all examples is the Iris dataset, which includes features (`sepal_length`, `sepal_width`, `petal_length`, and `petal_width`) and classes representing three flower species (`Iris-setosa`, `Iris-versicolor`, and `Iris-virginica`).
 
