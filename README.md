@@ -1155,13 +1155,147 @@ print("PackingNumbers:", idhat)
 
 ![3D Helix](examples/3d_helix.png)
 
-
-
 These examples illustrate the application of various intrinsic dimensionality estimation methods to datasets with different geometries. The visualizations help validate the results by showing dimensionality estimates in their natural geometric contexts.
 
+---
+
+### Normalization Example
+
+This example demonstrates the usage of the normalization functions implemented in **pyEDAkit**, comparing the results with standard libraries like `scikit-learn`. These functions include z-score normalization (with and without mean centering), min-max normalization, and sphering. Visualizations and outputs illustrate their effects on the Iris dataset.
+
+#### Dataset Overview
+We use the Iris dataset, focusing on `sepal_length` and `petal_length` features for visualization. The dataset contains three classes: `Iris-setosa`, `Iris-versicolor`, and `Iris-virginica`.
+
+#### Original Data
+The original data is plotted to show the unnormalized feature values.
+
+![Original Data](examples/original_data.png)
 
 
+#### Z-Scores with Zero Mean
+Z-score normalization scales data to have a standard deviation of 1 and a mean of 0.
 
+- **Implementation Comparison**: Results are identical to `scikit-learn`'s `StandardScaler` (with default settings).
+
+**Output**:
+```plaintext
+Is z_scores_zero_mean allclose to sklearn: True
+std:  [1. 1.] 
+mean:  [ 2.38437160e-16 -9.53748639e-17]
+```
+
+![Z-Scores with Zero Mean](examples/z-scores_mean_0.png)
+
+
+#### Z-Scores Without Zero Mean
+Z-score normalization scales data to have a standard deviation of 1 but does not subtract the mean.
+
+- **Implementation Comparison**: Matches `scikit-learn`'s `StandardScaler` (with `with_mean=False`).
+
+**Output**:
+```plaintext
+Is z_scores_not_zero_mean allclose to sklearn: True
+std:  [1. 1.] 
+mean:  [7.08193195 2.15226003]
+```
+
+![Z-Scores Without Zero Mean](examples/z-scores_not_mean_0.png)
+
+
+#### Min-Max Normalization
+Min-max normalization scales data to fit within the range [0, 1].
+
+- **Implementation Comparison**: Results are identical to `scikit-learn`'s `MinMaxScaler`.
+
+**Output**:
+```plaintext
+Is min-max norm allclose to sklearn: True
+std:  [0.22939135 0.29724345] 
+mean:  [0.43008949 0.47025367]
+```
+
+![Min-Max Normalization](examples/min-max_norm.png)
+
+#### Sphering
+Sphering, also known as whitening, removes correlations between features and scales them to have unit variance.
+
+- **Implementation Comparison**: Similar to `scikit-learn`'s `PCA(whiten=True)` but differs due to possible rotations or reflections. These differences are expected.
+
+**Output**:
+```plaintext
+Is sphering allclose to sklearn: False
+std:  [0.99663865 0.99663865] 
+mean:  [-5.42444538e-16  3.05497611e-17]
+Rotation-tolerant match for sphering vs PCA whiten:  True
+```
+
+**Visualizations**:
+- Sphering (pyEDAkit):
+  ![Sphering (pyEDAkit)](examples/Sphering(pyEDAkit).png)
+
+- Sphering (PCA Whiten):
+  ![Sphering (PCA Whiten)](examples/Sphering(PCA_whiten).png)
+
+
+#### Code
+Below is the complete code used in this example:
+```python
+from pyEDAkit import standardization as eda_std
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+# Scatter plot function
+def scatter_plot(x, y, targets, title='Title', class_names=None):
+    plt.figure()
+    unique_labels = np.unique(targets)
+    for lbl in unique_labels:
+        mask = (targets == lbl)
+        label_str = class_names[lbl] if class_names else f"Class {lbl}"
+        plt.scatter(x[mask], y[mask], s=10, label=label_str)
+    plt.axhline(0, color='gray', linestyle='--')
+    plt.axvline(0, color='gray', linestyle='--')
+    plt.title(title)
+    plt.legend()
+    plt.draw()
+
+# Load Iris dataset
+df = pd.read_csv("../datasets/iris/iris.data")
+df.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
+sp_df = df[['sepal_length', 'petal_length']].to_numpy()
+
+y = df['class'].to_numpy()
+y = np.where(y == 'Iris-setosa', 0, y)
+y = np.where(y == 'Iris-versicolor', 1, y)
+y = np.where(y == 'Iris-virginica', 2, y)
+y = y.astype(int)
+y_names = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
+
+# Normalization techniques and visualization
+scatter_plot(df['sepal_length'], df['petal_length'], y, title='Original data', class_names=y_names)
+
+# Z-scores with mean 0
+z_scores_zero_mean = eda_std.with_std_dev(sp_df, zero_mean=True)
+scatter_plot(z_scores_zero_mean[:, 0], z_scores_zero_mean[:, 1], y, title='z-scores with mean 0', class_names=y_names)
+
+# Z-scores without mean 0
+z_scores_not_zero_mean = eda_std.with_std_dev(sp_df, zero_mean=False)
+scatter_plot(z_scores_not_zero_mean[:, 0], z_scores_not_zero_mean[:, 1], y, title='z-scores with NOT mean 0', class_names=y_names)
+
+# Min-max normalization
+Z_minmax = eda_std.min_max_norm(sp_df)
+scatter_plot(Z_minmax[:, 0], Z_minmax[:, 1], y, title='min-max normalization', class_names=y_names)
+
+# Sphering
+Z_sphere = eda_std.sphering(sp_df)
+scatter_plot(Z_sphere[:, 0], Z_sphere[:, 1], y, title='Sphering (pyEDAkit)', class_names=y_names)
+
+pca = PCA(whiten=True)
+pca_data = pca.fit_transform(sp_df)
+scatter_plot(pca_data[:, 0], pca_data[:, 1], y, title='Sphering (PCA whiten)', class_names=y_names)
+```
 
 
 
