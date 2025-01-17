@@ -1230,10 +1230,12 @@ Rotation-tolerant match for sphering vs PCA whiten:  True
 ```
 
 **Visualizations**:
-- Sphering (pyEDAkit):
+- Sphering (pyEDAkit): 
+
   ![Sphering (pyEDAkit)](examples/Sphering(pyEDAkit).png)
 
 - Sphering (PCA Whiten):
+
   ![Sphering (PCA Whiten)](examples/Sphering(PCA_whiten).png)
 
 
