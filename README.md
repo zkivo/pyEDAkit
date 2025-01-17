@@ -857,6 +857,152 @@ This example demonstrates the importance of silhouette analysis for optimal clus
 
 ---
 
+### Dimensionality Reduction Examples
+
+This section provides examples demonstrating how to use various dimensionality reduction techniques and their visualizations with the `pyEDAkit` library. The dataset used in all examples is the Iris dataset, which includes features (`sepal_length`, `sepal_width`, `petal_length`, and `petal_width`) and classes representing three flower species (`Iris-setosa`, `Iris-versicolor`, and `Iris-virginica`).
+
+#### Dataset Preparation
+
+```python
+from pyEDAkit import linear as eda_lin
+import pandas as pd
+import numpy as np
+
+# Make sure to import the dataset from your local directory
+df = pd.read_csv("../datasets/iris/iris.data")
+df.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
+
+# Extract features and target labels
+X = df[['sepal_length', 'sepal_width', 'petal_length', 'petal_width']].to_numpy()
+y = df[['class']].to_numpy()[:,0]
+y = np.where(y == 'Iris-setosa', 0, y)
+y = np.where(y == 'Iris-versicolor', 1, y)
+y = np.where(y == 'Iris-virginica', 2, y)
+y = y.astype(int)
+y_names = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
+```
+
+---
+
+### 1. **Principal Component Analysis (PCA)**
+
+Principal Component Analysis reduces the dataset’s dimensionality by projecting it onto a lower-dimensional subspace while retaining as much variance as possible.
+
+```python
+eda_lin.PCA(X, d=3, plot=True)
+```
+#### Output (plot=True)
+![PCA Example](examples/Iris_PCA.png)
+
+- **Explanation**:
+  - The data is reduced to 3 principal components.
+  - The plot visualizes the variance explained by each component.
+  - Useful for understanding which components capture the most variance.
+
+---
+
+### 2. **Singular Value Decomposition (SVD)**
+
+SVD decomposes the matrix without explicitly calculating the covariance matrix. It provides an efficient way to find the principal components.
+
+```python
+eda_lin.SVD(X, plot=True)
+```
+#### Output (plot=True)
+![SVD Example](examples/Iris_SVD.png)
+
+
+- **Explanation**:
+  - Displays the singular values, which indicate the importance of each dimension.
+  - Useful for identifying the rank and energy captured by the decomposition.
+
+---
+
+### 3. **Non-negative Matrix Factorization (NMF)**
+
+NMF decomposes a non-negative matrix into two smaller non-negative matrices. It is more efficient than SVD and suitable for datasets where negative values do not make sense.
+
+```python
+eda_lin.NMF(X, d=4, plot=True)
+```
+#### Output (plot=True)
+![NMF Example](examples/Iris_NMF.png)
+
+
+- **Explanation**:
+  - Decomposes the data into 4 components.
+  - The plot shows the contribution of each component to the original dataset.
+
+---
+
+### 4. **Factor Analysis (FA)**
+
+Factor Analysis reduces dimensionality by relating each original variable to a smaller set of factors while adding small error values to allow flexibility.
+
+```python
+eda_lin.FA(X, d=3, plot=True)
+```
+
+#### Output (plot=True)
+![FA Example](examples/Iris_FA.png)
+
+- **Explanation**:
+  - Reduces the data to 3 factors.
+  - Shows how the factors contribute to explaining the dataset's variance.
+
+---
+
+### 5. **Linear Discriminant Analysis (LDA)**
+
+LDA projects the data onto a line that maximizes class separability, making it a supervised dimensionality reduction method.
+
+```python
+eda_lin.LDA(X, y, plot=True)
+```
+
+#### Output (plot=True)
+![LDA Example](examples/Iris_LDA.png)
+
+- **Explanation**:
+  - Projects the data into a single line for maximum class separation.
+  - Visualization highlights how well the classes are separated along the discriminant axis.
+
+---
+
+### 6. **Random Projection**
+
+Random Projection projects the data points into a random subspace while preserving the distances between points. It is computationally efficient and effective.
+
+```python
+eda_lin.RandProj(X, d=3, plot=True)
+```
+#### Output (plot=True)
+![Random Projection Example](examples/Iris_RandProj.png)
+
+- **Explanation**:
+  - Projects the data into a random 3-dimensional subspace.
+  - The plot visualizes the points in the new subspace, demonstrating that the relative distances between points are preserved.
+
+---
+
+### Notes:
+
+- **Visualization**: Each method generates a plot when `plot=True`, helping users visually interpret the results of the dimensionality reduction.
+- **Flexibility**: The `d` parameter in most functions controls the number of reduced dimensions.
+- **Interactivity**: The methods allow exploration of how different dimensionality reduction techniques work with the same dataset.
+
+
+
+
+
+
+
+
+
+
+
+
+---
 ## Dependencies
 This repository requires the following Python libraries:
 - `numpy>=1.21.0`

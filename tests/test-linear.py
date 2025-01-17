@@ -1,11 +1,8 @@
-from pyEDAkit import standardization as eda_std
 from pyEDAkit import linear as eda_lin
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-df = pd.read_csv("data/iris/iris.data")
+df = pd.read_csv("../datasets/iris/iris.data")
 df.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
 
 X = df[['sepal_length', 'sepal_width', 'petal_length', 'petal_width']].to_numpy()
@@ -21,7 +18,7 @@ y_names = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
 # Principal Component Analysis (PCA)
 # -----------------------------------
 
-eda_lin.PCA(X, d=3, plot=True)
+# eda_lin.PCA(X, d=3, plot=True)
 
 # ----------------------------------
 # Singular Value Decomposition (SVD)
@@ -29,7 +26,7 @@ eda_lin.PCA(X, d=3, plot=True)
 #   covariance matrix
 # ----------------------------------
 
-eda_lin.SVD(X, plot=True)
+# eda_lin.SVD(X, plot=True)
 
 # ----------------------------------
 # Non-negative Matrix Factorization (NMF)
@@ -38,7 +35,7 @@ eda_lin.SVD(X, plot=True)
 # each component contributes to the original matrix.
 # ----------------------------------
 
-eda_lin.NMF(X, d=4, plot=True)
+# eda_lin.NMF(X, d=4, plot=True)
 
 # ----------------------------------
 # Factor Analysis
