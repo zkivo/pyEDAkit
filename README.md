@@ -1003,7 +1003,7 @@ This section provides examples of intrinsic dimensionality estimation for variou
 
 Each example includes code snippets, results, and visualizations.
 
----
+
 
 #### **1. 3D Scene Analysis**
 
