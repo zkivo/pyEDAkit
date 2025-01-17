@@ -747,7 +747,94 @@ This plot is useful to evaluate the clustering quality visually.
 
 
 ---
+### Silhouette Evaluation Example
 
+The **Silhouette Evaluation** example demonstrates how to use the `SilhouetteEvaluation` class to determine the optimal number of clusters (k) for a given dataset using the silhouette criterion. The class evaluates various cluster solutions and identifies the best one based on the silhouette measure.
+
+
+#### Example Code:
+
+```python
+from pyEDAkit.clustering import SilhouetteEvaluation
+from numpy.random import default_rng
+
+def test_eval_silhouette():
+    rng = default_rng(42)
+    n = 200
+    X1 = rng.multivariate_normal(mean=[2, 2], cov=[[0.9, -0.0255], [-0.0255, 0.9]], size=n)
+    X2 = rng.multivariate_normal(mean=[5, 5], cov=[[0.5, 0], [0, 0.3]], size=n)
+    X3 = rng.multivariate_normal(mean=[-2, -2], cov=[[1, 0], [0, 0.9]], size=n)
+    X = np.vstack([X1, X2, X3])
+
+    # Evaluate the silhouette for k=1..6
+    evaluation = SilhouetteEvaluation(X,
+                                      clusteringFunction='kmeans',
+                                      KList=[1, 2, 3, 4, 5, 6],
+                                      Distance='sqEuclidean',
+                                      ClusterPriors='empirical')
+
+    print("Inspected K:         ", evaluation.InspectedK)
+    print("Criterion Values:    ", evaluation.CriterionValues)
+    print("OptimalK:            ", evaluation.OptimalK)
+
+    # Optional: plot the silhouette criterion
+    evaluation.plot()
+
+    # The best cluster solution's assignment:
+    best_clusters = evaluation.OptimalY
+    print("Shape of best cluster assignment:", best_clusters.shape)
+    print("Some cluster labels:", np.unique(best_clusters[~np.isnan(best_clusters)]))
+
+test_eval_silhouette()
+```
+
+### **Output and Plot**
+
+- **Inspected K**: The list of cluster numbers (k) evaluated.
+- **Criterion Values**: Silhouette scores for each k. Higher values indicate better cluster separation.
+- **Optimal K**: The k with the highest silhouette score.
+
+#### Example Output:
+```bash
+Inspected K:          [1 2 3 4 5 6]
+Criterion Values:     [nan 0.65458239 0.67860193 0.54828688 0.45514697 0.33797165]
+OptimalK:             3
+Shape of best cluster assignment: (600,)
+Some cluster labels: [1. 2. 3.]
+```
+
+#### Plot:
+The silhouette values vs. the number of clusters are visualized in the plot below:
+
+![Silhouette Criterion Evaluation](examples/silhouette_eval.png)
+
+
+### **How It Works**
+
+1. **Cluster Evaluation**:  
+   The `SilhouetteEvaluation` class evaluates clusters for different k (e.g., 1 to 6) using the silhouette criterion:
+   - The silhouette score is computed for each data point as:
+   
+        $s(i)=\frac{b(i)-a(i)}{\max(a(i),b(i))}$
+
+     where:
+     - $a(i)$: Average intra-cluster distance (distance to other points in the same cluster).
+     - $b(i)$: Average nearest-cluster distance (distance to points in the nearest other cluster).
+
+2. **Optimal Number of Clusters**:  
+   - The silhouette score is calculated for each k.
+   - The `OptimalK` property identifies the k with the maximum score.
+
+3. **Cluster Priors**:  
+   - `'empirical'`: Weighted by cluster sizes.
+   - `'equal'`: Equal weight for all clusters.
+
+4. **Visualization**:  
+   The `plot()` method shows the silhouette values for each k, aiding in identifying the best clustering solution.
+
+This example demonstrates the importance of silhouette analysis for optimal clustering and provides an easy-to-follow implementation of the process.
+
+---
 
 ## Dependencies
 This repository requires the following Python libraries:

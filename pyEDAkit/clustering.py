@@ -966,3 +966,227 @@ def silhouette(X, clust, Distance='euclidean', DistParameter=None,
     plt.tight_layout()
     return s, fig
 
+
+class SilhouetteEvaluation:
+    """
+    A Python class that mimics MATLAB's SilhouetteEvaluation object.
+    It evaluates various cluster solutions (for different k) via the silhouette criterion,
+    and identifies the optimal number of clusters based on the silhouette measure.
+
+    Properties (mimicking MATLAB):
+    -----------------------------
+    ClusteringFunction : str or callable
+        The clustering algorithm used ('kmeans', 'linkage', etc.).
+        For this example, we focus on 'kmeans'.
+
+    ClusterPriors : {'empirical','equal'}
+        - 'empirical': Weighted average of silhouette scores based on cluster sizes.
+        - 'equal': Unweighted average of silhouette scores across clusters.
+
+    ClusterSilhouettes : list of 1D numpy arrays
+        Each element i in this list is an array of length == number of clusters for KList[i].
+        That array holds the mean silhouette value of each cluster.
+
+    CriterionName : str
+        The name of the criterion, always 'Silhouette' for this object.
+
+    CriterionValues : 1D numpy array
+        The silhouette criterion values (one for each k in InspectedK).
+        This is the overall measure of cluster quality for that number of clusters.
+
+    Distance : str
+        The distance metric used, e.g., 'sqEuclidean', 'Euclidean', 'cityblock', etc.
+        (Implementation focuses primarily on 'sqEuclidean' or 'euclidean'.)
+
+    InspectedK : 1D numpy array
+        The list of candidate cluster counts that were evaluated.
+
+    OptimalK : int
+        The best number of clusters based on the maximum silhouette criterion value.
+
+    OptimalY : 1D numpy array or None
+        The cluster assignments for the best clustering solution
+        (same length as the number of rows in X).
+        If there is missing data in X, the corresponding row in OptimalY is NaN.
+
+    Missing : 1D boolean array or None
+        A mask of which rows were ignored (if they contained NaNs).
+        If no missing data, this can be None or an all-False array.
+
+    NumObservations : int
+        The number of valid observations (rows) used from X after ignoring NaNs.
+
+    X : 2D numpy array or None
+        The original data (rows with NaNs removed). If you want a “compact” object,
+        you could set this to None afterward.
+
+    Example
+    -------
+    # Suppose you have data X with 600 rows (some from different distributions).
+    # Evaluate k=1..6 using kmeans and silhouette:
+    evalObj = SilhouetteEvaluation(X,
+                                  clusteringFunction='kmeans',
+                                  KList=[1,2,3,4,5,6],
+                                  Distance='sqEuclidean',
+                                  ClusterPriors='empirical')
+    print(evalObj.OptimalK)   # best number of clusters
+    print(evalObj.CriterionValues)  # silhouette scores for each k
+    print(evalObj.OptimalY)   # best cluster assignments
+    """
+
+    def __init__(self,
+                 X,
+                 clusteringFunction='kmeans',
+                 KList=None,
+                 Distance='sqEuclidean',
+                 ClusterPriors='empirical'):
+        """
+        Constructor for SilhouetteEvaluation.
+
+        Parameters
+        ----------
+        X : ndarray of shape (n_samples, n_features)
+            The data to cluster. Rows with NaNs are ignored.
+        clusteringFunction : str
+            The clustering method. For this example, we support only 'kmeans'.
+        KList : list or array-like
+            A list of candidate cluster numbers to try. E.g., [1,2,3,4,5,6].
+        Distance : str
+            Distance metric, e.g. 'sqEuclidean', 'euclidean', 'cityblock'.
+        ClusterPriors : {'empirical','equal'}
+            - 'empirical': Weighted average by cluster size
+            - 'equal': Each cluster contributes equally
+        """
+        print("The execution of this method might take several seconds. Please wait...")
+        if KList is None:
+            KList = [2, 3, 4, 5, 6]  # default
+        self.ClusteringFunction = clusteringFunction
+        self.ClusterPriors = ClusterPriors
+        self.CriterionName = 'Silhouette'
+        self.Distance = Distance
+        self.InspectedK = np.asarray(KList, dtype=int)
+
+        # Handle missing data
+        X = np.asarray(X, dtype=float)
+        nan_mask = np.isnan(X).any(axis=1)
+        self.Missing = None
+        if np.any(nan_mask):
+            self.Missing = nan_mask
+            X_valid = X[~nan_mask]
+        else:
+            X_valid = X
+
+        self.X = X  # store the entire raw data if desired
+        self.NumObservations = X_valid.shape[0]
+
+        # Prepare placeholders
+        self.CriterionValues = np.full(len(KList), np.nan, dtype=float)
+        self.ClusterSilhouettes = [None] * len(KList)
+        self.OptimalK = None
+        self.OptimalY = None  # best cluster labels
+
+        # Evaluate silhouette for each k in KList
+        self._evaluate_solutions(X_valid)
+
+        # Identify the best k
+        max_index = np.nanargmax(self.CriterionValues)
+        self.OptimalK = int(self.InspectedK[max_index])
+
+        # Compute the cluster assignment for the best k on the full data
+        # (including missing => those remain NaN in the assignment).
+        bestK = self.OptimalK
+        if self.ClusteringFunction.lower() == 'kmeans':
+            # We use our kmeans wrapper
+            idx_full, _, _, _ = kmeans(X, bestK,
+                                       'Distance', self.Distance,
+                                       'Replicates', 5,
+                                       'EmptyAction', 'singleton')
+            self.OptimalY = idx_full  # shape (n_samples,)
+
+        else:
+            raise NotImplementedError(f"Only 'kmeans' clusteringFunction is currently implemented.")
+
+    def _evaluate_solutions(self, X_valid):
+        """
+        For each candidate k, run clustering and compute silhouette.
+        Fill out CriterionValues and ClusterSilhouettes.
+        """
+        for i, k in enumerate(self.InspectedK):
+            # Silhouette is undefined (and scikit-learn errors out) if k < 2
+            if k < 2:
+                self.CriterionValues[i] = np.nan
+                # We can store an array of [np.nan] for the cluster silhouette means
+                self.ClusterSilhouettes[i] = np.array([np.nan])
+                continue
+
+            # If we have k>=2, proceed:
+            if self.ClusteringFunction.lower() == 'kmeans':
+                # cluster the valid data
+                idx_valid, _, _, _ = kmeans(X_valid, k,
+                                            'Distance', self.Distance,
+                                            'Replicates', 5,
+                                            'EmptyAction', 'singleton',
+                                            'MaxIter', 100,
+                                            'Display', 'off')
+                # silhouette
+                s, _ = silhouette(X_valid, idx_valid,
+                                  Distance=self._map_distance(self.Distance),
+                                  do_plot=False)
+
+                # compute cluster-level means
+                cluster_labels = np.unique(idx_valid[~np.isnan(idx_valid)])
+                cluster_labels = cluster_labels.astype(int)
+
+                cluster_means = []
+                cluster_sizes = []
+                for lbl in cluster_labels:
+                    s_lbl = s[idx_valid == lbl]
+                    cluster_means.append(np.mean(s_lbl))
+                    cluster_sizes.append(len(s_lbl))
+
+                cluster_means = np.array(cluster_means)
+                cluster_sizes = np.array(cluster_sizes)
+
+                self.ClusterSilhouettes[i] = cluster_means
+
+                # overall silhouette => depends on ClusterPriors
+                if self.ClusterPriors.lower() == 'empirical':
+                    # Weighted by cluster size
+                    w = cluster_sizes / cluster_sizes.sum()
+                    overall = np.sum(cluster_means * w)
+                elif self.ClusterPriors.lower() == 'equal':
+                    # Unweighted average across clusters
+                    overall = np.mean(cluster_means)
+                else:
+                    raise ValueError("ClusterPriors must be 'empirical' or 'equal'.")
+
+                self.CriterionValues[i] = overall
+
+            else:
+                raise NotImplementedError(f"Only 'kmeans' is implemented in _evaluate_solutions().")
+
+    def _map_distance(self, dist_name):
+        """
+        Map MATLAB-style distance names to something scikit-learn understands.
+        E.g., 'sqEuclidean' -> 'euclidean'.
+        """
+        dn = dist_name.lower()
+        if dn == 'sqeuclidean':
+            return 'euclidean'
+        # you can add more mappings here as needed
+        return dn
+
+    def plot(self):
+        """
+        Plot the silhouette criterion values vs. the inspected K.
+        Similar to MATLAB's plot(evaluation).
+        """
+        import matplotlib.pyplot as plt
+
+        plt.figure(figsize=(6, 4))
+        plt.plot(self.InspectedK, self.CriterionValues, 'bo-', mfc='white')
+        plt.xlabel("Number of Clusters")
+        plt.ylabel("Silhouette Values")
+        plt.title("Silhouette Criterion Evaluation")
+        plt.grid(True)
+        plt.show()

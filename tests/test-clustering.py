@@ -1,4 +1,3 @@
-from pyEDAkit.clustering import linkage, cluster, kmeans
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import dendrogram
 import numpy as np
@@ -7,11 +6,11 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.metrics import accuracy_score
 from matplotlib.colors import ListedColormap
-from pyEDAkit.clustering import kmeans
 import networkx as nx
-from pyEDAkit.clustering import minspantree, cluster, cophenet
+from pyEDAkit.clustering import minspantree, cluster, cophenet, silhouette, SilhouetteEvaluation, kmeans, linkage
 from pyEDAkit.IntrinsicDimensionality import pdist
-from pyEDAkit.clustering import silhouette
+from numpy.random import default_rng
+
 
 ########################################################
 ############## TEST LINKAGE FUNCTION ###################
@@ -313,11 +312,39 @@ def test_silhouette():
     print("Silhouette values with Minkowski distance, p=3:\n", s2)
 
 
+def test_eval_silhouette():
+    rng = default_rng(42)
+    n = 200
+    X1 = rng.multivariate_normal(mean=[2, 2], cov=[[0.9, -0.0255], [-0.0255, 0.9]], size=n)
+    X2 = rng.multivariate_normal(mean=[5, 5], cov=[[0.5, 0], [0, 0.3]], size=n)
+    X3 = rng.multivariate_normal(mean=[-2, -2], cov=[[1, 0], [0, 0.9]], size=n)
+    X = np.vstack([X1, X2, X3])
+
+    # Evaluate the silhouette for k=1..6
+    evaluation = SilhouetteEvaluation(X,
+                                      clusteringFunction='kmeans',
+                                      KList=[1, 2, 3, 4, 5, 6],
+                                      Distance='sqEuclidean',
+                                      ClusterPriors='empirical')
+
+    print("Inspected K:         ", evaluation.InspectedK)
+    print("Criterion Values:    ", evaluation.CriterionValues)
+    print("OptimalK:            ", evaluation.OptimalK)
+    # Optional: plot the silhouette criterion
+    evaluation.plot()
+
+    # The best cluster solution's assignment:
+    best_clusters = evaluation.OptimalY
+    print("Shape of best cluster assignment:", best_clusters.shape)
+    print("Some cluster labels:", np.unique(best_clusters[~np.isnan(best_clusters)]))
+
+
 if __name__ == '__main__':
     # test_linkage()
     # test_cluster()
     # test_kmeans()
     # test_minspantree()
     # test_cophenet()
-    test_silhouette()
+    # test_silhouette()
+    test_eval_silhouette()
     pass
