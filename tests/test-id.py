@@ -1,31 +1,28 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from pyEDAkit.IntrinsicDimensionality import id_pettis, corr_dim, MLE, \
-    packing_numbers
+from pyEDAkit.IntrinsicDimensionality import id_pettis, corr_dim, MLE, packing_numbers
 from generate_data import generate_1D_helix, generate_3D_helix, generate_scene
-from mpl_toolkits.mplot3d import Axes3D
 from sklearn.neighbors import NearestNeighbors
 import pandas as pd
 
 """
-    --------- Scene ---------
-    Intrinsic Dimension  Count  Percentage (%)
-                    1.0   3881       64.683333
-                    2.0   1144       19.066667
-                    3.0    974       16.233333
-                    4.0      1        0.016667
+--------- Scene ---------
+Intrinsic Dimension Percentage Table:
+   Intrinsic Dimension  Count  Percentage (%)
+0                  1.0   3912           65.20
+1                  2.0   1071           17.85
+2                  3.0   1017           16.95
+--------- 1D helix ---------
+Pettis: 1.1188611882299895
+CorrDim: 1.0519154515473388
+MLE: 1.016437190647435
+PackingNumbers: 0.9687679337468452
+--------- 3D helix ---------
+Pettis: 2.9694778990257538
+CorrDim: 1.915960541356256
+MLE: 2.2358864548083406
+PackingNumbers: 1.4515438307243151
 
-    --------- 1D helix ---------
-    Pettis: 1.1047889445671362
-    CorrDim: 1.0309670763066818
-    MLE: 1.014824818196277
-    PackingNumbers: 0.944554645367179
-
-    --------- 3D helix ---------
-    Pettis: 2.977299222123266
-    CorrDim: 1.8408523277805207
-    MLE: 2.245914166730645
-    PackingNumbers: 1.4337496475758493
 """
 
 print('--------- Scene ---------')

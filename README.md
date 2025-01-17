@@ -991,9 +991,173 @@ eda_lin.RandProj(X, d=3, plot=True)
 - **Flexibility**: The `d` parameter in most functions controls the number of reduced dimensions.
 - **Interactivity**: The methods allow exploration of how different dimensionality reduction techniques work with the same dataset.
 
+---
 
+### Examples: Intrinsic Dimensionality Estimation with Code and Visualizations
 
+This section provides examples of intrinsic dimensionality estimation for various datasets. The examples include:
 
+1. **3D Scene Analysis**
+2. **1D Helix**
+3. **3D Helix**
+
+Each example includes code snippets, results, and visualizations.
+
+---
+
+#### **1. 3D Scene Analysis**
+
+In this example, we generate a synthetic 3D scene with varying intrinsic dimensions. We estimate the intrinsic dimensionality for each point using the `MLE` method and visualize the results.
+
+**Code**:
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.neighbors import NearestNeighbors
+import pandas as pd
+from pyEDAkit.IntrinsicDimensionality import MLE
+from generate_data import generate_scene
+
+print('--------- Scene ---------')
+X = generate_scene(plot=False)
+
+# Initialize nearest neighbors
+nbrs = NearestNeighbors(n_neighbors=100, algorithm='auto').fit(X)
+_, indices = nbrs.kneighbors(X)
+
+# Calculate intrinsic dimension for each point
+intrinsic_dimensions = []
+for idx in range(len(X)):
+    neighbors = X[indices[idx]]
+    dim = MLE(neighbors)
+    dim = np.round(dim)
+    intrinsic_dimensions.append(dim)
+
+# Replace values > 3 with 4
+intrinsic_dimensions = np.array(intrinsic_dimensions)
+intrinsic_dimensions[intrinsic_dimensions > 3] = 4
+
+# Calculate percentage of each intrinsic dimension
+unique, counts = np.unique(intrinsic_dimensions, return_counts=True)
+percentages = (counts / len(intrinsic_dimensions)) * 100
+percentage_table = pd.DataFrame({
+    'Intrinsic Dimension': unique,
+    'Count': counts,
+    'Percentage (%)': percentages
+})
+
+# Display the percentage table
+print("Intrinsic Dimension Percentage Table:")
+print(percentage_table)
+
+# Plot the 3D graph with intrinsic dimensions as colors
+fig = plt.figure(figsize=(10, 8))
+ax = fig.add_subplot(111, projection='3d')
+scatter = ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=intrinsic_dimensions, cmap='viridis', s=10)
+ax.set_title('3D Scatter Plot Colored by Local Intrinsic Dimension (k=100)')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+colorbar = fig.colorbar(scatter, ax=ax, label='Intrinsic Dimension')
+plt.show()
+```
+
+**Results**:
+- **Percentage Table**:
+  | Intrinsic Dimension | Count | Percentage (%) |
+  |---------------------|-------|----------------|
+  | 1.0                 | 3912  | 65.20          |
+  | 2.0                 | 1071  | 17.85          |
+  | 3.0                 | 1017  | 16.95          |
+
+**Visualization**:
+
+![3D Scatter Plot with Intrinsic Dimensions](Intrinsic_Dim_Scene_1.png)
+
+---
+
+#### **2. 1D Helix**
+
+This example demonstrates intrinsic dimensionality estimation for a 1D helix dataset using multiple methods.
+
+**Code**:
+
+```python
+from pyEDAkit.IntrinsicDimensionality import id_pettis, corr_dim, MLE, packing_numbers
+from generate_data import generate_1D_helix
+
+print('--------- 1D helix ---------')
+X = generate_1D_helix(500, plot=True)
+
+idhat = id_pettis(X)
+print("Pettis:", idhat)
+
+idhat = corr_dim(X)
+print("CorrDim:", idhat)
+
+idhat = MLE(X)
+print("MLE:", idhat)
+
+idhat = packing_numbers(X)
+print("PackingNumbers:", idhat)
+```
+
+**Results**:
+| Method           | Estimated Intrinsic Dimension |
+|------------------|-------------------------------|
+| Pettis           | 1.12                          |
+| CorrDim          | 1.05                          |
+| MLE              | 1.02                          |
+| PackingNumbers   | 0.97                          |
+
+**Visualization**:
+
+![1D Helix](helix.png)
+
+---
+
+#### **3. 3D Helix**
+
+Finally, we estimate intrinsic dimensionality for a 3D helix dataset.
+
+**Code**:
+
+```python
+from pyEDAkit.IntrinsicDimensionality import id_pettis, corr_dim, MLE, packing_numbers
+from generate_data import generate_3D_helix
+
+print('--------- 3D helix ---------')
+X, _ = generate_3D_helix(2000, 0.05, plot=True)
+
+idhat = id_pettis(X)
+print("Pettis:", idhat)
+
+idhat = corr_dim(X)
+print("CorrDim:", idhat)
+
+idhat = MLE(X)
+print("MLE:", idhat)
+
+idhat = packing_numbers(X)
+print("PackingNumbers:", idhat)
+```
+
+**Results**:
+| Method           | Estimated Intrinsic Dimension |
+|------------------|-------------------------------|
+| Pettis           | 2.97                          |
+| CorrDim          | 1.92                          |
+| MLE              | 2.24                          |
+| PackingNumbers   | 1.45                          |
+
+**Visualization**:
+
+![3D Helix](3d_helix.png)
+
+---
+
+These examples illustrate the application of various intrinsic dimensionality estimation methods to datasets with different geometries. The visualizations help validate the results by showing dimensionality estimates in their natural geometric contexts.
 
 
 
