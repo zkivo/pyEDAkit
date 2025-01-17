@@ -1073,7 +1073,7 @@ plt.show()
 
 **Visualization**:
 
-![3D Scatter Plot with Intrinsic Dimensions](Intrinsic_Dim_Scene_1.png)
+![3D Scatter Plot with Intrinsic Dimensions](examples/Intrinsic_Dim_Scene_1.png)
 
 ---
 
@@ -1113,7 +1113,7 @@ print("PackingNumbers:", idhat)
 
 **Visualization**:
 
-![1D Helix](helix.png)
+![1D Helix](examples/helix.png)
 
 ---
 
@@ -1153,7 +1153,7 @@ print("PackingNumbers:", idhat)
 
 **Visualization**:
 
-![3D Helix](3d_helix.png)
+![3D Helix](examples/3d_helix.png)
 
 ---
 
