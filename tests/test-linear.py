@@ -9,7 +9,7 @@ sys.path.insert(0, parent_dir)
 
 from pyEDAkit import linear as eda_lin
 
-df = pd.read_csv("../datasets/iris/iris.data")
+df = pd.read_csv("datasets/iris/iris.data")
 df.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
 
 X = df[['sepal_length', 'sepal_width', 'petal_length', 'petal_width']].to_numpy()

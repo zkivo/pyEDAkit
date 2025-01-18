@@ -45,7 +45,7 @@ def scatter_plot(x, y, targets, title='Title', class_names=None):
     plt.draw()
 
 
-df = pd.read_csv("../datasets/iris/iris.data")
+df = pd.read_csv("datasets/iris/iris.data")
 df.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
 sp_df = df[['sepal_length', 'petal_length']].to_numpy()
 

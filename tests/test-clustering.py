@@ -7,10 +7,15 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import accuracy_score
 from matplotlib.colors import ListedColormap
 import networkx as nx
+from numpy.random import default_rng
+import os
+import sys
+
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_dir)
+
 from pyEDAkit.clustering import minspantree, cluster, cophenet, silhouette, SilhouetteEvaluation, kmeans, linkage
 from pyEDAkit.IntrinsicDimensionality import pdist
-from numpy.random import default_rng
-
 
 ########################################################
 ############## TEST LINKAGE FUNCTION ###################

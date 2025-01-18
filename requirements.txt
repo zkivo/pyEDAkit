@@ -1,0 +1,8 @@
+matplotlib==3.8.4
+MiniSom==2.3.3
+networkx==3.3
+numpy==2.2.1
+pandas==2.2.3
+scikit_learn==1.6.1
+scipy==1.15.1
+seaborn==0.13.2

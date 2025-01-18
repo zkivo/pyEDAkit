@@ -6,7 +6,7 @@ from minisom import MiniSom
 import matplotlib.pyplot as plt
 
 # Load the MATLAB data
-mat_data = scipy.io.loadmat('data/oronsay.mat')
+mat_data = scipy.io.loadmat('datasets/oronsay.mat')
 
 # Extract data and labels
 data = mat_data['oronsay']
