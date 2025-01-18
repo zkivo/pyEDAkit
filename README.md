@@ -3,6 +3,36 @@ The project is sponsored by Malmö Universitet developed by Eng. Marco Schivo an
 
 Internal course Code reference: MA661E
 
+## Installation Instructions
+
+To install the `pyEDAkit` package, follow the steps below:
+
+1. **Prerequisites**:  
+   Ensure you have Python 3.7 or higher installed. You can download it from [python.org](https://www.python.org/).
+
+2. **Install from PyPI**:  
+   Use the following command to install `pyEDAkit`:
+
+   ```bash
+   pip install pyEDAkit
+   ```
+
+3. **Verify Installation**:  
+   After installation, verify it by running:
+
+   ```bash
+   python -c "import pyEDAkit; print('pyEDAkit installed successfully!')"
+   ```
+
+4. **Optional (Upgrade)**:  
+   To upgrade to the latest version:
+
+   ```bash
+   pip install --upgrade pyEDAkit
+   ```
+
+You're now ready to use `pyEDAkit`.
+
 ## Warnings
 Please note that this project is still under development and is not yet ready for production use. The code is subject to change, and new features will be added over time. We welcome contributions and feedback from the community to improve the toolkit.
 
