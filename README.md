@@ -2,6 +2,10 @@
 The project is sponsored by Malmö Universitet developed by Eng. Marco Schivo and Eng. Alberto Biscalchin under the supervision of Associete Professor Yuanji Cheng and is released under the MIT License. It is open source and available for anyone to use and contribute to.
 
 Internal course Code reference: MA661E
+
+## Warnings
+Please note that this project is still under development and is not yet ready for production use. The code is subject to change, and new features will be added over time. We welcome contributions and feedback from the community to improve the toolkit.
+
 ## Overview
 This repository implements MATLAB-style functions in Python for various data analysis, clustering, dimensionality reduction, and graph algorithms. These functions leverage popular Python libraries such as `numpy`, `scipy`, `matplotlib`, `networkx`, and `scikit-learn`, while maintaining a familiar MATLAB-like syntax and behavior.
 
