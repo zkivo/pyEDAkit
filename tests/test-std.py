@@ -1,9 +1,16 @@
-from pyEDAkit import standardization as eda_std
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import sys
+import os
+
+# Add the parent directory to sys.path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_dir)
+
+from pyEDAkit import standardization as eda_std
 
 
 def scatter_plot(x, y, targets, title='Title', class_names=None):
@@ -38,7 +45,7 @@ def scatter_plot(x, y, targets, title='Title', class_names=None):
     plt.draw()
 
 
-df = pd.read_csv("../datasets/iris/iris.data")
+df = pd.read_csv("datasets/iris/iris.data")
 df.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
 sp_df = df[['sepal_length', 'petal_length']].to_numpy()
 

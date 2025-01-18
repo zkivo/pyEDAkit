@@ -1,8 +1,15 @@
-from pyEDAkit import linear as eda_lin
 import pandas as pd
 import numpy as np
+import sys
+import os
 
-df = pd.read_csv("../datasets/iris/iris.data")
+# Add the parent directory to sys.path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_dir)
+
+from pyEDAkit import linear as eda_lin
+
+df = pd.read_csv("datasets/iris/iris.data")
 df.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
 
 X = df[['sepal_length', 'sepal_width', 'petal_length', 'petal_width']].to_numpy()
@@ -14,11 +21,12 @@ y = y.astype(int)
 y_names = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
 
 
+
 # -----------------------------------
 # Principal Component Analysis (PCA)
 # -----------------------------------
 
-eda_lin.PCA(X, d=3, plot=True)
+eda_lin.PCA(X, d=2, plot=True)
 
 # ----------------------------------
 # Singular Value Decomposition (SVD)
@@ -46,7 +54,7 @@ eda_lin.NMF(X, d=4, plot=True)
 #   relation.
 # ----------------------------------
 
-eda_lin.FA(X, d=3, plot=True)
+eda_lin.FA(X, d=2, plot=True)
 
 # ----------------------------------
 # Linear Discriminant Analysis (LDA)

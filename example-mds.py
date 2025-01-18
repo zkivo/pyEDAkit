@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.manifold import MDS
 
 # Load the MATLAB data
-mat_data = scipy.io.loadmat('data/leukemia.mat')
+mat_data = scipy.io.loadmat('datasets/leukemia.mat')
 
 # Extract data and labels
 data = mat_data['leukemia'].T  # Feature matrix

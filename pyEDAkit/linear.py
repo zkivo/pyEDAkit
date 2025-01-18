@@ -85,8 +85,8 @@ def FA(X, d, plot = False):
     factor_df = pd.DataFrame(Z, columns=[f"Factor {i+1}" for i in range(d)])
 
     if plot:
-        sns.pairplot(factor_df, diag_kind="kde")
-        plt.suptitle("Scatter Plots of Factors", y=1.02)
+        sns.pairplot(factor_df, diag_kind="kde", corner=True)
+        plt.suptitle("Scatter Plots of Factors")
         plt.show()
 
     return Z
@@ -142,3 +142,5 @@ def RandProj(X, d, plot = False):
         sns.pairplot(reduced_data_df, diag_kind='kde', corner=True)
         plt.suptitle('Random projection')
         plt.show()
+    
+    return Z

@@ -6,7 +6,7 @@ from minisom import MiniSom
 import matplotlib.pyplot as plt
 
 # Load the MATLAB data
-mat_data = scipy.io.loadmat('data/oronsay.mat')
+mat_data = scipy.io.loadmat('datasets/oronsay.mat')
 
 # Extract data and labels
 data = mat_data['oronsay']
@@ -20,25 +20,11 @@ midden = [item for item in midden.ravel()]
 
 # Initialize and train the SOM
 som_x, som_y = 10, 10  # Define SOM grid size
-som = MiniSom(som_x, som_y, data.shape[1], sigma=1.0, learning_rate=0.5, topology='hexagonal', neighborhood_function='gaussian')
+som = MiniSom(som_x, som_y, data.shape[1], sigma=1.0, learning_rate=0.5, topology='rectangular', neighborhood_function='gaussian')
 som.random_weights_init(data)
-som.train_random(data, 100000)  # Number of iterations
+som.train_random(data, 1000000, verbose=True)  # Number of iterations
 
-# Compute the U-Matrix
-u_matrix = np.zeros((som_x, som_y))
-for x in range(som_x):
-    for y in range(som_y):
-        neighbors = [
-            (x + dx, y + dy)
-            for dx in (-1, 0, 1)
-            for dy in (-1, 0, 1)
-            if (0 <= x + dx < som_x and 0 <= y + dy < som_y) and not (dx == 0 and dy == 0)
-        ]
-        distances = [
-            np.linalg.norm(som._weights[x, y] - som._weights[nx, ny])
-            for nx, ny in neighbors
-        ]
-        u_matrix[x, y] = np.mean(distances)
+u_matrix = som.distance_map()
 
 # Plot the U-Matrix
 plt.figure(figsize=(10, 10))

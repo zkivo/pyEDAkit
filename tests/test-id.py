@@ -1,17 +1,26 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from pyEDAkit.IntrinsicDimensionality import id_pettis, corr_dim, MLE, packing_numbers
-from generate_data import generate_1D_helix, generate_3D_helix, generate_scene
 from sklearn.neighbors import NearestNeighbors
 import pandas as pd
+import sys
+import os
+
+# Add the parent directory to sys.path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_dir)
+
+from pyEDAkit.IntrinsicDimensionality import id_pettis, corr_dim, MLE, \
+    packing_numbers
+from generate_data import generate_1D_helix, generate_3D_helix, generate_scene
 
 """
 --------- Scene ---------
 Intrinsic Dimension Percentage Table:
    Intrinsic Dimension  Count  Percentage (%)
-0                  1.0   3912           65.20
-1                  2.0   1071           17.85
-2                  3.0   1017           16.95
+                   1.0   3881       64.683333
+                   2.0   1144       19.066667
+                   3.0    974       16.233333
+                   4.0      1        0.016667
 --------- 1D helix ---------
 Pettis: 1.1188611882299895
 CorrDim: 1.0519154515473388
