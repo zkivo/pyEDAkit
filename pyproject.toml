@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyEDAkit"
-version = "0.1.1"
+version = "0.1.2"
 description = "A toolkit for exploratory data analysis in Python"
 readme = "README.md"
 license = { file = "LICENSE" }
