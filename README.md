@@ -127,7 +127,7 @@ def test_linkage():
 
     # Step 3: Cluster the data into a maximum of four groups
     max_clusters = 4
-    cluster_labels = cluster(Z, max_clusters, criterion='maxclust')
+    cluster_labels = cluster(Z, 'MaxClust', max_clusters, criterion='maxclust')
 
     # Step 4: Plot the result in 3D
     fig = plt.figure(figsize=(10, 8))
