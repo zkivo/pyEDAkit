@@ -55,11 +55,8 @@ def generate_3D_helix(n: int, noise: float, plot: bool = False):
         fig = plt.figure(figsize=(10, 8))
         ax = fig.add_subplot(111, projection='3d')
 
-        # Scatter plot with colors based on labels
-        for label in np.unique(labels):
-            ax.scatter(X[labels == label, 0], X[labels == label, 1], X[labels == label, 2], 
-                    label=f'Class {label}', alpha=0.8)
-
+        # Scatter plot with no colors based on labels
+        ax.scatter(X[:, 0], X[:, 1], X[:, 2], alpha=0.8)
         # Add labels and legend
         ax.set_title('3D Helix')
         ax.set_xlabel('X')
