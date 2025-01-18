@@ -180,13 +180,13 @@ test_linkage()
 #### **3D Scatter Plot of Hierarchical Clustering**
 This plot visualizes the clusters formed by hierarchical clustering on a randomly generated dataset of 20,000 observations. The data points are colored by their cluster labels (maximum of 4 clusters).
 
-![3D Scatter Plot](https://github.com/zkivo/pyEDAkit/blob/main/exampleshierarchical_clustering_scatter_3d.png)
+![3D Scatter Plot](examples/hierarchical_clustering_scatter_3d.png)
 
 
 #### **Dendrogram**
 The dendrogram represents the hierarchical clustering of a small dataset, built from a dissimilarity matrix. The `complete` linkage method is used to compute the hierarchical structure, and the result is visualized as a dendrogram.
 
-![Dendrogram](https://github.com/zkivo/pyEDAkit/blob/main/examplesdendrogram.png)
+![Dendrogram](examples/dendrogram.png)
 
 ### **`Cluster` Function**
 
@@ -379,7 +379,7 @@ test_kmeans()
 ```
 
 #### Centroids displacement plot
-![K-Means Example](https://github.com/zkivo/pyEDAkit/blob/main/examplesk-means.png)
+![K-Means Example](examples/k-means.png)
 
 #### Bash Output:
 
@@ -535,7 +535,7 @@ test_minspantree()
 - **MST (Prim's Algorithm)**: Highlights the MST computed using Prim's algorithm, rooted at node 1.
 - **MST (Kruskal's Algorithm)**: Displays the MST computed using Kruskal's algorithm, including a spanning forest for all components.
 
-![Minimum Spanning Tree](https://github.com/zkivo/pyEDAkit/blob/main/examplesminspantree.png)
+![Minimum Spanning Tree](examples/minspantree.png)
 
 
 
@@ -661,7 +661,7 @@ Cophenetic correlation coefficient: 0.9966209146535578
 
 Process finished with exit code 0
 ```
-![Cophenetic Correlation](https://github.com/zkivo/pyEDAkit/blob/main/examplesCophenetic_corr.png)
+![Cophenetic Correlation](examples/Cophenetic_corr.png)
 
 #### **Key Takeaways**:
 
@@ -831,7 +831,7 @@ Some cluster labels: [1. 2. 3.]
 #### Plot:
 The silhouette values vs. the number of clusters are visualized in the plot below:
 
-![Silhouette Criterion Evaluation](https://github.com/zkivo/pyEDAkit/blob/main/examplessilhouette_eval.png)
+![Silhouette Criterion Evaluation](examples/silhouette_eval.png)
 
 
 ### **How It Works**
@@ -896,7 +896,7 @@ Principal Component Analysis reduces the dataset’s dimensionality by projectin
 eda_lin.PCA(X, d=3, plot=True)
 ```
 #### Output (plot=True)
-![PCA Example](https://github.com/zkivo/pyEDAkit/blob/main/examplesIris_PCA.png)
+![PCA Example](examples/Iris_PCA.png)
 
 - **Explanation**:
   - The data is reduced to 3 principal components.
@@ -913,7 +913,7 @@ SVD decomposes the matrix without explicitly calculating the covariance matrix. 
 eda_lin.SVD(X, plot=True)
 ```
 #### Output (plot=True)
-![SVD Example](https://github.com/zkivo/pyEDAkit/blob/main/examplesIris_SVD.png)
+![SVD Example](examples/Iris_SVD.png)
 
 
 - **Explanation**:
@@ -930,7 +930,7 @@ NMF decomposes a non-negative matrix into two smaller non-negative matrices. It 
 eda_lin.NMF(X, d=4, plot=True)
 ```
 #### Output (plot=True)
-![NMF Example](https://github.com/zkivo/pyEDAkit/blob/main/examplesIris_NMF.png)
+![NMF Example](examples/Iris_NMF.png)
 
 
 - **Explanation**:
@@ -948,7 +948,7 @@ eda_lin.FA(X, d=3, plot=True)
 ```
 
 #### Output (plot=True)
-![FA Example](https://github.com/zkivo/pyEDAkit/blob/main/examplesIris_FA.png)
+![FA Example](examples/Iris_FA.png)
 
 - **Explanation**:
   - Reduces the data to 3 factors.
@@ -965,7 +965,7 @@ eda_lin.LDA(X, y, plot=True)
 ```
 
 #### Output (plot=True)
-![LDA Example](https://github.com/zkivo/pyEDAkit/blob/main/examplesIris_LDA.png)
+![LDA Example](examples/Iris_LDA.png)
 
 - **Explanation**:
   - Projects the data into a single line for maximum class separation.
@@ -981,7 +981,7 @@ Random Projection projects the data points into a random subspace while preservi
 eda_lin.RandProj(X, d=3, plot=True)
 ```
 #### Output (plot=True)
-![Random Projection Example](https://github.com/zkivo/pyEDAkit/blob/main/examplesIris_RandProj.png)
+![Random Projection Example](examples/Iris_RandProj.png)
 
 - **Explanation**:
   - Projects the data into a random 3-dimensional subspace.
@@ -1077,7 +1077,7 @@ plt.show()
 
 **Visualization**:
 
-![3D Scatter Plot with Intrinsic Dimensions](https://github.com/zkivo/pyEDAkit/blob/main/examplesIntrinsic_Dim_Scene_1.png)
+![3D Scatter Plot with Intrinsic Dimensions](examples/Intrinsic_Dim_Scene_1.png)
 
 
 
@@ -1117,7 +1117,7 @@ print("PackingNumbers:", idhat)
 
 **Visualization**:
 
-![1D Helix](https://github.com/zkivo/pyEDAkit/blob/main/exampleshelix.png)
+![1D Helix](examples/helix.png)
 
 
 
@@ -1157,7 +1157,7 @@ print("PackingNumbers:", idhat)
 
 **Visualization**:
 
-![3D Helix](https://github.com/zkivo/pyEDAkit/blob/main/examples3d_helix.png)
+![3D Helix](examples/3d_helix.png)
 
 These examples illustrate the application of various intrinsic dimensionality estimation methods to datasets with different geometries. The visualizations help validate the results by showing dimensionality estimates in their natural geometric contexts.
 
@@ -1173,7 +1173,7 @@ We use the Iris dataset, focusing on `sepal_length` and `petal_length` features 
 #### Original Data
 The original data is plotted to show the unnormalized feature values.
 
-![Original Data](https://github.com/zkivo/pyEDAkit/blob/main/examplesoriginal_data.png)
+![Original Data](examples/original_data.png)
 
 
 #### Z-Scores with Zero Mean
@@ -1188,7 +1188,7 @@ std:  [1. 1.]
 mean:  [ 2.38437160e-16 -9.53748639e-17]
 ```
 
-![Z-Scores with Zero Mean](https://github.com/zkivo/pyEDAkit/blob/main/examplesz-scores_mean_0.png)
+![Z-Scores with Zero Mean](examples/z-scores_mean_0.png)
 
 
 #### Z-Scores Without Zero Mean
@@ -1203,7 +1203,7 @@ std:  [1. 1.]
 mean:  [7.08193195 2.15226003]
 ```
 
-![Z-Scores Without Zero Mean](https://github.com/zkivo/pyEDAkit/blob/main/examplesz-scores_not_mean_0.png)
+![Z-Scores Without Zero Mean](examples/z-scores_not_mean_0.png)
 
 
 #### Min-Max Normalization
@@ -1218,7 +1218,7 @@ std:  [0.22939135 0.29724345]
 mean:  [0.43008949 0.47025367]
 ```
 
-![Min-Max Normalization](https://github.com/zkivo/pyEDAkit/blob/main/examplesmin-max_norm.png)
+![Min-Max Normalization](examples/min-max_norm.png)
 
 #### Sphering
 Sphering, also known as whitening, removes correlations between features and scales them to have unit variance.
@@ -1236,11 +1236,11 @@ Rotation-tolerant match for sphering vs PCA whiten:  True
 **Visualizations**:
 - Sphering (pyEDAkit): 
 
-  ![Sphering (pyEDAkit)](https://github.com/zkivo/pyEDAkit/blob/main/examplesSphering(pyEDAkit).png)
+  ![Sphering (pyEDAkit)](examples/Sphering(pyEDAkit).png)
 
 - Sphering (PCA Whiten):
 
-  ![Sphering (PCA Whiten)](https://github.com/zkivo/pyEDAkit/blob/main/examplesSphering(PCA_whiten).png)
+  ![Sphering (PCA Whiten)](examples/Sphering(PCA_whiten).png)
 
 
 #### Code
