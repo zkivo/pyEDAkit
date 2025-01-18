@@ -348,63 +348,22 @@ test_kmeans()
 #### Bash Output:
 
 ```bash
-Cluster labels (idx):
- [2. 2. 2. 1. 1. 1. 1. 1. 1.]
-Centroids (C):
- [[8.  2.5]
- [1.  2. ]]
-Within-cluster sums (sumd):
- [37.5  8. ]
-Distances to centroids (D):
- [[4.92500000e+01 7.88860905e-31]
- [5.12500000e+01 4.00000000e+00]
- [5.52500000e+01 4.00000000e+00]
- [4.25000000e+00 8.10000000e+01]
- [6.25000000e+00 8.50000000e+01]
- [1.02500000e+01 8.50000000e+01]
- [9.25000000e+00 1.60000000e+01]
- [4.25000000e+00 2.60000000e+01]
- [3.25000000e+00 4.00000000e+01]]
-Initialization complete
-Iteration 0, inertia 38.0.
-Iteration 1, inertia 20.0.
-Converged at iteration 1: strict convergence.
-Initialization complete
-Iteration 0, inertia 38.0.
-Iteration 1, inertia 20.0.
-Converged at iteration 1: strict convergence.
-Initialization complete
-Iteration 0, inertia 54.0.
-Iteration 1, inertia 31.333333333333336.
-Converged at iteration 1: strict convergence.
-Initialization complete
-Iteration 0, inertia 31.0.
-Iteration 1, inertia 26.1875.
-Iteration 2, inertia 20.0.
-Converged at iteration 2: strict convergence.
-Initialization complete
-Iteration 0, inertia 26.0.
-Iteration 1, inertia 20.0.
-Converged at iteration 1: strict convergence.
-Clustering Accuracy: 0.89
 Cluster assignments (idx):
-[1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
- 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
- 1. 1. 3. 3. 2. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3.
- 3. 3. 3. 3. 3. 2. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3.
- 3. 3. 3. 3. 2. 3. 2. 2. 2. 2. 3. 2. 2. 2. 2. 2. 2. 3. 3. 2. 2. 2. 2. 3.
- 2. 3. 2. 3. 2. 2. 3. 3. 2. 2. 2. 2. 2. 3. 2. 2. 2. 2. 3. 2. 2. 2. 3. 2.
- 2. 2. 3. 2. 2. 3.]
+[2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2.
+ 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2.
+ 2. 2. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3.
+ 3. 3. 3. 3. 3. 1. 3. 3. 3. 3. 3. 1. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3.
+ 3. 3. 3. 3. 1. 1. 1. 1. 1. 1. 3. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 3.
+ 1. 1. 1. 1. 1. 1. 3. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 3. 1. 1. 1. 1. 1.
+ 1. 1. 1. 1. 1. 1.]
 
 Centroids (C):
-[[5.006      3.418      1.464      0.244     ]
- [6.85       3.07368421 5.74210526 2.07105263]
- [5.9016129  2.7483871  4.39354839 1.43387097]]
+[[5.59583333 2.0375    ]
+ [1.464      0.244     ]
+ [4.26923077 1.34230769]]
 
 Within-cluster sum of distances (sumd):
-[15.2404     23.87947368 39.82096774]
-
-Process finished with exit code 0
+[16.29166667  2.0384     13.05769231]
 ```
 
 #### Key Points:
