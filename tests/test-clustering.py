@@ -121,22 +121,32 @@ def test_kmeans():
     idx, C, sumd, D = kmeans(X, k, 'Distance', 'sqeuclidean', 'Replicates', 5, 'MaxIter', 300)
 
     # Step 2: Create a 2D grid for the feature space
-    x_min, x_max = X[:, 0].min() - 0.5, X[:, 0].max() + 0.5
-    y_min, y_max = X[:, 1].min() - 0.5, X[:, 1].max() + 0.5
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01),
-                         np.arange(y_min, y_max, 0.01))
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.05),
+                         np.arange(y_min, y_max, 0.05))
 
-    # Step 3: Predict the cluster for each grid point
-    grid_points = np.c_[xx.ravel(), yy.ravel()]
-    Z = kmeans(grid_points, k, 'Distance', 'sqeuclidean', 'Start', C, 'MaxIter', 1)[0]  # One iteration
-    Z = Z.reshape(xx.shape)
+    # Combine the grid into a list of points
+    grid_points = np.c_[xx.ravel(), yy.ravel()]  # Flatten the grid into points for classification
+
+    # Define the function to assign grid points to clusters
+    def assign_to_clusters(grid_points, centroids):
+        """
+        Assign grid points to the nearest cluster based on centroids.
+        """
+        distances = np.linalg.norm(grid_points[:, None] - centroids, axis=2)  # Euclidean distance
+        return np.argmin(distances, axis=1)  # Assign to the nearest centroid
+
+    # Assign each grid point to a cluster
+    Z = assign_to_clusters(grid_points, C)
+    Z = Z.reshape(xx.shape)  # Reshape to match the grid dimensions
 
     # Step 4: Plot the results
     plt.figure(figsize=(10, 6))
 
     # Plot cluster regions
     cmap = ListedColormap(['#FFCCCC', '#CCFFCC', '#CCCCFF'])  # Colors for regions
-    plt.contourf(xx, yy, Z - 1, cmap=cmap, alpha=0.5)  # MATLAB is 1-based; subtract 1 for Python indexing
+    plt.contourf(xx, yy, Z, cmap=cmap, alpha=0.5)
 
     # Plot data points
     plt.scatter(X[:, 0], X[:, 1], c=idx - 1, cmap='viridis', edgecolor='k', s=50, label='Data')
@@ -145,7 +155,7 @@ def test_kmeans():
     plt.scatter(C[:, 0], C[:, 1], c='red', s=200, marker='X', label='Centroids')
 
     # Add labels and title
-    plt.title("K-means Clustering with Colored Areas")
+    plt.title("K-means Clustering with Correctly Colored Areas")
     plt.xlabel("Petal Length (cm)")
     plt.ylabel("Petal Width (cm)")
     plt.legend(loc='best')

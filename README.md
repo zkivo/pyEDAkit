@@ -267,113 +267,77 @@ The `kmeans` function, imported from the `pyEDAkit.clustering` module, provides 
 import numpy as np
 import pandas as pd
 from pyEDAkit.clustering import kmeans
-from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from sklearn.metrics import accuracy_score
 
 def test_kmeans():
-    # Sample data
-    X = np.array([[1, 2], [1, 4], [1, 0],
-                  [10, 2], [10, 4], [10, 0],
-                  [5, 2], [6, 3], [7, 4]])
-
-    # 1) Basic call
-    idx, C, sumd, D = kmeans(X, 2)  # 2 clusters
-
-    print("Cluster labels (idx):\n", idx)
-    print("Centroids (C):\n", C)
-    print("Within-cluster sums (sumd):\n", sumd)
-    print("Distances to centroids (D):\n", D)
-
-    # 2) With optional name-value arguments, e.g., 'Replicates'
-    idx2, C2, sumd2, D2 = kmeans(X, 3, 'Replicates', 5, 'MaxIter', 200, 'Display', 'iter')
-
-    # Step 1: Load the Iris dataset
+    # Load Iris dataset
     iris_path = "../datasets/iris_dataset.csv"
     iris_data = pd.read_csv(iris_path)
 
-    # Extract features and target labels
-    X = iris_data.iloc[:, :-1].values  # First 4 columns (features)
-    y_true = iris_data.iloc[:, -1].values  # Last column (true labels)
+    # Use only petal_length and petal_width features (2D data)
+    X = iris_data.iloc[:, [2, 3]].values  # Columns for petal_length and petal_width
+    y_true = iris_data.iloc[:, -1].values  # True labels (species)
 
-    # Map the target labels to numeric values
+    # Map the target labels to numeric values for true labels
     label_mapping = {'Iris-setosa': 0, 'Iris-versicolor': 1, 'Iris-virginica': 2}
     y_numeric = np.array([label_mapping[label] for label in y_true])
 
-    # Step 2: Apply K-means clustering
-    k = 3  # Number of clusters (as Iris dataset has 3 classes)
+    # Step 1: Apply k-means clustering using your custom function
+    k = 3  # Number of clusters
     idx, C, sumd, D = kmeans(X, k, 'Distance', 'sqeuclidean', 'Replicates', 5, 'MaxIter', 300)
 
-    # Step 3: Reduce dimensionality for visualization (using PCA)
-    pca = PCA(n_components=2)  # Reduce to 2D
-    X_pca = pca.fit_transform(X)
-
-    # Transform centroids to PCA space
-    C_pca = pca.transform(C)
-
-    # Step 4: Visualize the clustering results with colored areas
-    plt.figure(figsize=(12, 6))
-
-    # Plot the true labels
-    plt.subplot(1, 2, 1)
-    scatter1 = plt.scatter(X_pca[:, 0], X_pca[:, 1], c=y_numeric, cmap='viridis', edgecolor='k', s=50)
-    plt.title("True Labels")
-    plt.xlabel("Principal Component 1")
-    plt.ylabel("Principal Component 2")
-    plt.colorbar(scatter1, label="Class")
-
-    # Plot the K-means cluster assignments with colored areas
-    plt.subplot(1, 2, 2)
-
-    # Create a grid to color the background
-    x_min, x_max = X_pca[:, 0].min() - 1, X_pca[:, 0].max() + 1
-    y_min, y_max = X_pca[:, 1].min() - 1, X_pca[:, 1].max() + 1
+    # Step 2: Create a 2D grid for the feature space
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
     xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.05),
                          np.arange(y_min, y_max, 0.05))
 
-    # Predict the cluster for each point in the grid
-    grid_points = np.c_[xx.ravel(), yy.ravel()]
-    Z = kmeans(pca.inverse_transform(grid_points), k, 'Distance', 'sqeuclidean')[0]
-    Z = Z.reshape(xx.shape)
+    # Combine the grid into a list of points
+    grid_points = np.c_[xx.ravel(), yy.ravel()]  # Flatten the grid into points for classification
 
-    # Plot the filled contour for the clusters
-    cmap = ListedColormap(['#FFCCCC', '#CCFFCC', '#CCCCFF'])
-    plt.contourf(xx, yy, Z, cmap=cmap, alpha=0.4)
+    # Define the function to assign grid points to clusters
+    def assign_to_clusters(grid_points, centroids):
+        """
+        Assign grid points to the nearest cluster based on centroids.
+        """
+        distances = np.linalg.norm(grid_points[:, None] - centroids, axis=2)  # Euclidean distance
+        return np.argmin(distances, axis=1)  # Assign to the nearest centroid
 
-    # Scatter the points
-    scatter2 = plt.scatter(X_pca[:, 0], X_pca[:, 1], c=idx, cmap='viridis', edgecolor='k', s=50)
-    plt.scatter(C_pca[:, 0], C_pca[:, 1], c='red', s=200, marker='X', label="Centroids")  # Mark centroids
-    plt.title("K-means Clustering with Colored Areas")
-    plt.xlabel("Principal Component 1")
-    plt.ylabel("Principal Component 2")
-    plt.legend()
-    plt.colorbar(scatter2, label="Cluster")
+    # Assign each grid point to a cluster
+    Z = assign_to_clusters(grid_points, C)
+    Z = Z.reshape(xx.shape)  # Reshape to match the grid dimensions
 
-    plt.tight_layout()
+    # Step 4: Plot the results
+    plt.figure(figsize=(10, 6))
+
+    # Plot cluster regions
+    cmap = ListedColormap(['#FFCCCC', '#CCFFCC', '#CCCCFF'])  # Colors for regions
+    plt.contourf(xx, yy, Z, cmap=cmap, alpha=0.5)
+
+    # Plot data points
+    plt.scatter(X[:, 0], X[:, 1], c=idx - 1, cmap='viridis', edgecolor='k', s=50, label='Data')
+
+    # Plot centroids
+    plt.scatter(C[:, 0], C[:, 1], c='red', s=200, marker='X', label='Centroids')
+
+    # Add labels and title
+    plt.title("K-means Clustering with Correctly Colored Areas")
+    plt.xlabel("Petal Length (cm)")
+    plt.ylabel("Petal Width (cm)")
+    plt.legend(loc='best')
     plt.show()
 
-    # Step 5: Calculate and print accuracy
-    # Map clusters to the closest true labels to calculate accuracy
-    from scipy.stats import mode
-
-    # Remap clusters to best match true labels
-    remapped_idx = np.zeros_like(idx)
-    for cluster in range(1, k + 1):  # Clusters are 1-based
-        mask = (idx == cluster)
-        remapped_idx[mask] = mode(y_numeric[mask])[0]
-
-    # Calculate accuracy
-    accuracy = accuracy_score(y_numeric, remapped_idx)
-    print(f"Clustering Accuracy: {accuracy:.2f}")
-
-    # Print results
+    # Step 5: Print results
     print("Cluster assignments (idx):")
     print(idx)
     print("\nCentroids (C):")
     print(C)
     print("\nWithin-cluster sum of distances (sumd):")
     print(sumd)
+
+
 
 test_kmeans()
 ```
