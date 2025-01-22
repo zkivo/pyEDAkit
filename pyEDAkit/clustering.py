@@ -10,6 +10,24 @@ from sklearn.metrics import silhouette_samples
 import networkx as nx
 
 def kmeans(X, k):
+    """
+    Perform k-means clustering on data X.
+
+    Parameters
+    ----------
+    X : ndarray
+        The data matrix (n_samples x n_features).
+    k : int
+
+    Returns
+    -------
+    idx : ndarray
+        The cluster index of each point (n_samples,).
+
+    centers : ndarray
+        The cluster centers (k x n_features).
+    """
+
     kmeans = KMeans(n_clusters=k)
     idx = kmeans.fit_predict(X)
     return idx, kmeans.cluster_centers_
