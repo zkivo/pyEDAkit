@@ -9,6 +9,11 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_samples
 import networkx as nx
 
+def kmeans(X, k):
+    kmeans = KMeans(n_clusters=k)
+    idx = kmeans.fit_predict(X)
+    return idx, kmeans.cluster_centers_
+
 def linkage(X,
             method='single',
             metric='euclidean',
@@ -303,7 +308,7 @@ def cluster(Z, *args, **kwargs):
     )
 
 
-def kmeans(X, k, *args, **kwargs):
+def kmeans_matlab(X, k, *args, **kwargs):
     """
     K-means clustering in the style of MATLAB's kmeans function.
 
@@ -360,7 +365,7 @@ def kmeans(X, k, *args, **kwargs):
     >>> X = np.array([[1,2],[1,4],[1,0],
     ...               [10,2],[10,4],[10,0]])
     >>> # Basic call
-    >>> idx, C, sumd, D = kmeans(X, 2)
+    >>> idx, C, sumd, D = kmeans_matlab(X, 2)
     >>> print(idx)  # cluster assignments
     >>> print(C)    # final centroids
     >>> print(sumd) # within-cluster sums
@@ -1097,7 +1102,7 @@ class SilhouetteEvaluation:
         bestK = self.OptimalK
         if self.ClusteringFunction.lower() == 'kmeans':
             # We use our kmeans wrapper
-            idx_full, _, _, _ = kmeans(X, bestK,
+            idx_full, _, _, _ = kmeans_matlab(X, bestK,
                                        'Distance', self.Distance,
                                        'Replicates', 5,
                                        'EmptyAction', 'singleton')
@@ -1122,7 +1127,7 @@ class SilhouetteEvaluation:
             # If we have k>=2, proceed:
             if self.ClusteringFunction.lower() == 'kmeans':
                 # cluster the valid data
-                idx_valid, _, _, _ = kmeans(X_valid, k,
+                idx_valid, _, _, _ = kmeans_matlab(X_valid, k,
                                             'Distance', self.Distance,
                                             'Replicates', 5,
                                             'EmptyAction', 'singleton',
