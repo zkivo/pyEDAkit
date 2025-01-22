@@ -8,6 +8,8 @@ from sklearn.metrics import accuracy_score
 from matplotlib.colors import ListedColormap
 import networkx as nx
 from numpy.random import default_rng
+from scipy.spatial.distance import pdist
+import scipy.io
 import os
 import sys
 
@@ -15,12 +17,62 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 
 from pyEDAkit.clustering import minspantree, cluster, cophenet, silhouette, SilhouetteEvaluation, kmeans, linkage
-from pyEDAkit.IntrinsicDimensionality import pdist
 
 ########################################################
 ############## TEST LINKAGE FUNCTION ###################
 ########################################################
-def test_linkage():
+def test_linkage_with_yeast():
+    file_path = 'datasets/yeast.mat'
+    yeast = scipy.io.loadmat(file_path)
+
+    X = yeast['data']
+
+    print(X, type(X), X.shape)
+
+    Z_single = linkage(X, method='single')
+    Z_complete = linkage(X, method='complete')
+    Z_average = linkage(X, method='average')
+    Z_centroid = linkage(X, method='centroid')
+    Z_ward = linkage(X, method='ward')
+
+    plt.figure(figsize=(12, 8))
+    dendrogram(Z_single, truncate_mode='lastp', p=30, leaf_rotation=45, leaf_font_size=10)
+    plt.title("Single Linkage")
+    plt.xlabel("Cluster Index")
+    plt.ylabel("Distance")
+    plt.show()
+
+    plt.figure(figsize=(12, 8))
+    dendrogram(Z_complete, truncate_mode='lastp', p=30, leaf_rotation=45, leaf_font_size=10)
+    plt.title("Complete Linkage")
+    plt.xlabel("Cluster Index")
+    plt.ylabel("Distance")
+    plt.show()
+
+    plt.figure(figsize=(12, 8))
+    dendrogram(Z_average, truncate_mode='lastp', p=30, leaf_rotation=45, leaf_font_size=10)
+    plt.title("Average Linkage")
+    plt.xlabel("Cluster Index")
+    plt.ylabel("Distance")
+    plt.show()
+
+    plt.figure(figsize=(12, 8))
+    dendrogram(Z_centroid, truncate_mode='lastp', p=30, leaf_rotation=45, leaf_font_size=10)
+    plt.title("Centroid Linkage")
+    plt.xlabel("Cluster Index")
+    plt.ylabel("Distance")
+    plt.show()
+
+    plt.figure(figsize=(12, 8))
+    dendrogram(Z_ward, truncate_mode='lastp', p=30, leaf_rotation=45, leaf_font_size=10)
+    plt.title("Ward's Linkage")
+    plt.xlabel("Cluster Index")
+    plt.ylabel("Distance")
+    plt.show()
+
+
+
+def test_linkage_with_random():
     # Step 1: Randomly generate sample data with 20,000 observations
     np.random.seed(0)  # For reproducibility
     X = np.random.rand(20000, 3)
@@ -104,8 +156,26 @@ def test_cluster():
 ################# TEST KMEANS FUNCTION ######################
 #############################################################
 def test_kmeans():
-    # Load Iris dataset
-    iris_path = "../datasets/iris_dataset.csv"
+    # Sample data
+    X = np.array([[1,2],[1,4],[1,0],
+                  [10,2],[10,4],[10,0],
+                  [5,2],[6,3],[7,4]])
+
+    # 1) Basic call
+    idx, C, sumd, D = kmeans(X, 2)  # 2 clusters
+
+    print("Cluster labels (idx):\n", idx)
+    print("Centroids (C):\n", C)
+    print("Within-cluster sums (sumd):\n", sumd)
+    print("Distances to centroids (D):\n", D)
+
+    # 2) With optional name-value arguments, e.g. 'Replicates'
+    idx2, C2, sumd2, D2 = kmeans(X, 3, 'Replicates', 5, 'MaxIter', 200, 'Display', 'iter')
+
+
+
+    # Step 1: Load the Iris dataset
+    iris_path = "datasets/iris_dataset.csv"
     iris_data = pd.read_csv(iris_path)
 
     # Use only petal_length and petal_width features (2D data)
@@ -306,9 +376,10 @@ def test_eval_silhouette():
 
 
 if __name__ == '__main__':
-    # test_linkage()
+    test_linkage_with_yeast()
+    # test_linkage_with_random()
     # test_cluster()
-    test_kmeans()
+    # test_kmeans()
     # test_minspantree()
     # test_cophenet()
     # test_silhouette()
