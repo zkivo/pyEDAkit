@@ -245,6 +245,18 @@ def linkage(X,
         "matrix. Got shape: {}".format(X.shape)
     )
 
+
+# -----------------------------------------------------------------------
+# In evaluating the clustering results, the book is focused in answering 
+# the following question:
+# - Given two methods, do they produce different results when applied to 
+#   the same data?
+# -----------------------------------------------------------------------
+def evaluate(P1, P2):
+    # P1 first clustering partition
+    # P2 second clustering partition
+    pass
+
 ##############################################################################
 # MATLAB-style cluster function (wrapper around SciPy fcluster)
 ##############################################################################

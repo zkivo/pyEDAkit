@@ -2,7 +2,14 @@ import scipy.io
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.manifold import MDS
+
+import os
+import sys
+
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_dir)
+
+import pyEDAkit.nonlinear as eda_nonlin
 
 # Load the MATLAB data
 mat_data = scipy.io.loadmat('datasets/leukemia.mat')
@@ -20,20 +27,16 @@ cancertype = [item[0] for item in cancertype.ravel()]
 if len(btcell) != data.shape[0] or len(cancertype) != data.shape[0]:
     raise ValueError("Mismatch in the number of samples between data and labels.")
 
-# Perform metric MDS in two dimensions
-mds_metric = MDS(n_components=2, random_state=42, metric=True)
-data_mds_metric = mds_metric.fit_transform(data)
-
-# Perform non-metric MDS in two dimensions
-mds_nonmetric = MDS(n_components=2, random_state=42, metric=False)
-data_mds_nonmetric = mds_nonmetric.fit_transform(data)
+# Perform metric & non-metric MDS 
+Z_metric = eda_nonlin.MDS(data, d=2, metric=True)
+Z_non_metric = eda_nonlin.MDS(data, d=2, metric=False)
 
 # Create DataFrames for visualization
-df_metric = pd.DataFrame(data_mds_metric, columns=['Dim1', 'Dim2'])
+df_metric = pd.DataFrame(Z_metric, columns=['Dim1', 'Dim2'])
 df_metric['btcell'] = btcell
 df_metric['cancertype'] = cancertype
 
-df_nonmetric = pd.DataFrame(data_mds_nonmetric, columns=['Dim1', 'Dim2'])
+df_nonmetric = pd.DataFrame(Z_non_metric, columns=['Dim1', 'Dim2'])
 df_nonmetric['btcell'] = btcell
 df_nonmetric['cancertype'] = cancertype
 
