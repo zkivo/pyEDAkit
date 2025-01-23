@@ -1,13 +1,99 @@
 import numpy as np
 from scipy.cluster.hierarchy import linkage as scipy_linkage
-from scipy.cluster.hierarchy import fcluster, inconsistent
+from scipy.cluster.hierarchy import fcluster
 from scipy.spatial.distance import pdist, squareform, cdist
+from scipy.sparse.csgraph import minimum_spanning_tree
+from scipy.sparse.csgraph import connected_components
 from sklearn.cluster import KMeans
 from scipy.spatial.distance import cdist
 from scipy.cluster.hierarchy import cophenet as scipy_cophenet
 import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_samples
 import networkx as nx
+
+def mst_clustering(X, k, plot=False):
+    """
+    Perform MST clustering on data X.
+
+    Parameters
+    ----------
+    X : ndarray
+        The data matrix (n_samples x 2).
+    k : int
+        Number of clusters
+    plot : bool, optional
+        Whether to plot the clusters. Default is False.
+
+    Returns
+    -------
+    idx : ndarray
+        The cluster index of each point (n_samples,).
+        
+    """
+
+    # check if the input is 2D
+    if X.shape[1] != 2:
+        # if you have more than 2 dimensions, you can first reduce to 
+        # a plane an than perform this clustering method.
+        raise ValueError("Input data must be 2D")
+
+    # Function to find clusters by removing k most distant edges
+    def function(mst, k):
+        mst_csr = mst.toarray().astype(float)
+        edges = [(i, j, mst_csr[i, j]) for i, j in zip(*np.where(mst_csr > 0))]
+        edges = sorted(edges, key=lambda edge: edge[2], reverse=True)  # Sort by distance
+
+        # Remove k most distant edges
+        for i in range(k):
+            mst_csr[edges[i][0], edges[i][1]] = 0
+            mst_csr[edges[i][1], edges[i][0]] = 0
+
+        # Find connected components (clusters)
+        n_components, labels = connected_components(mst_csr)
+        return n_components, labels, mst_csr
+    
+    distance_matrix = squareform(pdist(X))
+    mst = minimum_spanning_tree(distance_matrix)
+
+    # k - 1 is the number of edges to remove 
+    n_clusters, cluster_labels, mst_csr = function(mst, k - 1)
+
+    if plot:
+        # Plot the points and clusters
+        plt.figure(figsize=(10, 8))
+
+        # subplot 1
+        plt.subplot(121)
+
+        # Scatter plot for points
+        plt.scatter(X[:, 0], X[:, 1], s=50, color='gray')
+
+        # Plot MST edges
+        for i, j in zip(*mst.nonzero()):
+            plt.plot([X[i, 0], X[j, 0]], [X[i, 1], X[j, 1]], 'k-', lw=0.5)
+
+        plt.title("Minimum Spanning Tree")
+        plt.xlabel("X-axis")
+        plt.ylabel("Y-axis")
+
+        plt.subplot(122)
+
+        colors = plt.cm.rainbow(np.linspace(0, 1, n_clusters))
+        for i in range(n_clusters):
+            cluster_points = X[cluster_labels == i]
+            plt.scatter(cluster_points[:, 0], cluster_points[:, 1], label=f"Cluster {i+1}")
+
+        # Plot MST edges
+        for i, j in zip(*mst_csr.nonzero()):
+            plt.plot([X[i, 0], X[j, 0]], [X[i, 1], X[j, 1]], 'k-', lw=0.5)
+
+        plt.title(f"Clusters from MST with k={k}")
+        plt.xlabel("X-axis")
+        plt.ylabel("Y-axis")
+        plt.legend()
+        plt.show()
+
+    return cluster_labels
 
 def kmeans(X, k):
     """

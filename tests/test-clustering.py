@@ -3,16 +3,17 @@ from scipy.cluster.hierarchy import dendrogram
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-from sklearn.metrics import accuracy_score
+from scipy.spatial.distance import pdist, squareform
+from scipy.sparse.csgraph import minimum_spanning_tree
+from scipy.sparse.csgraph import connected_components
 from matplotlib.colors import ListedColormap
 import networkx as nx
 from numpy.random import default_rng
 from scipy.spatial.distance import pdist
-from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import load_iris
 import seaborn as sns
+
 import scipy.io
 import os
 import sys
@@ -20,7 +21,7 @@ import sys
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 
-import pyEDAkit.clustering as eda_cluster
+import pyEDAkit.clustering as eda_clustering
 
 ########################################################
 ############## TEST LINKAGE FUNCTION ###################
@@ -33,11 +34,11 @@ def test_linkage_with_yeast():
 
     print(X, type(X), X.shape)
 
-    Z_single = eda_cluster.linkage(X, method='single')
-    Z_complete = eda_cluster.linkage(X, method='complete')
-    Z_average = eda_cluster.linkage(X, method='average')
-    Z_centroid = eda_cluster.linkage(X, method='centroid')
-    Z_ward = eda_cluster.linkage(X, method='ward')
+    Z_single = eda_clustering.linkage(X, method='single')
+    Z_complete = eda_clustering.linkage(X, method='complete')
+    Z_average = eda_clustering.linkage(X, method='average')
+    Z_centroid = eda_clustering.linkage(X, method='centroid')
+    Z_ward = eda_clustering.linkage(X, method='ward')
 
     plt.figure(figsize=(12, 8))
     dendrogram(Z_single, truncate_mode='lastp', p=30, leaf_rotation=45, leaf_font_size=10)
@@ -82,11 +83,11 @@ def test_linkage_with_random():
     X = np.random.rand(20000, 3)
 
     # Step 2: Create a hierarchical cluster tree using the ward linkage method
-    Z = eda_cluster.linkage(X, method='ward')
+    Z = eda_clustering.linkage(X, method='ward')
 
     # Step 3: Cluster the data into a maximum of four groups
     max_clusters = 4
-    cluster_labels = eda_cluster.cluster(Z, 'MaxClust', max_clusters, criterion='maxclust')
+    cluster_labels = eda_clustering.cluster(Z, 'MaxClust', max_clusters, criterion='maxclust')
 
     # Step 4: Plot the result in 3D
     fig = plt.figure(figsize=(10, 8))
@@ -113,7 +114,7 @@ def test_linkage_with_random():
     y = squareform(X)
 
     # Step 7: Create a hierarchical cluster tree using the 'complete' method
-    Z = eda_cluster.linkage(y, method='complete')
+    Z = eda_clustering.linkage(y, method='complete')
 
     # Step 8: Print the resulting linkage matrix
     print("Linkage matrix (Z):")
@@ -140,26 +141,26 @@ def test_cluster():
     X = np.random.rand(10, 3)
 
     # Compute linkage matrix
-    Z = eda_cluster.linkage(X, method='ward')
+    Z = eda_clustering.linkage(X, method='ward')
 
     # 1) Cut off by distance = 0.7
-    T_distance = eda_cluster.cluster(Z, 'Cutoff', 0.7, 'Criterion', 'distance')
+    T_distance = eda_clustering.cluster(Z, 'Cutoff', 0.7, 'Criterion', 'distance')
 
     # 2) Cut off by inconsistent measure
-    T_inconsist = eda_cluster.cluster(Z, 'Cutoff', 1.5)
+    T_inconsist = eda_clustering.cluster(Z, 'Cutoff', 1.5)
 
     # 3) Force a maximum of 3 clusters
-    T_maxclust = eda_cluster.cluster(Z, 'MaxClust', 3)
+    T_maxclust = eda_clustering.cluster(Z, 'MaxClust', 3)
 
     # 4) Multiple cutoffs -> T is an m-by-l matrix
-    T_multi = eda_cluster.cluster(Z, 'Cutoff', [0.7, 1.0, 1.5], 'Criterion', 'distance')
+    T_multi = eda_clustering.cluster(Z, 'Cutoff', [0.7, 1.0, 1.5], 'Criterion', 'distance')
     print(T_multi.shape)  # (10, 3)
 
 
 #############################################################
 ################# TEST KMEANS FUNCTION ######################
 #############################################################
-def test_kmeans_book():
+def test_kmeans_as_book():
     # Load the Iris dataset
     iris = load_iris()
     df = pd.DataFrame(iris.data, columns=iris.feature_names)
@@ -170,7 +171,7 @@ def test_kmeans_book():
     data = scaler.fit_transform(df.iloc[:, :-1])  # Scale the features
 
     # idx contains the cluster labels, C contains the cluster centers
-    idx, C = eda_cluster.kmeans(data, 3)
+    idx, C = eda_clustering.kmeans(data, 3)
     df['cluster'] = idx
 
     # Add cluster centers to the DataFrame for visualization
@@ -206,7 +207,7 @@ def test_kmeans():
                   [5,2],[6,3],[7,4]])
 
     # 1) Basic call
-    idx, C, sumd, D = eda_cluster.kmeans_matlab(X, 2)  # 2 clusters
+    idx, C, sumd, D = eda_clustering.kmeans_matlab(X, 2)  # 2 clusters
 
     print("Cluster labels (idx):\n", idx)
     print("Centroids (C):\n", C)
@@ -214,7 +215,7 @@ def test_kmeans():
     print("Distances to centroids (D):\n", D)
 
     # 2) With optional name-value arguments, e.g. 'Replicates'
-    idx2, C2, sumd2, D2 = eda_cluster.kmeans_matlab(X, 3, 'Replicates', 5, 'MaxIter', 200, 'Display', 'iter')
+    idx2, C2, sumd2, D2 = eda_clustering.kmeans_matlab(X, 3, 'Replicates', 5, 'MaxIter', 200, 'Display', 'iter')
 
     # Step 1: Load the Iris dataset
     iris_path = "datasets/iris_dataset.csv"
@@ -230,7 +231,7 @@ def test_kmeans():
 
     # Step 1: Apply k-means clustering using your custom function
     k = 3  # Number of clusters
-    idx, C, sumd, D = eda_cluster.kmeans_matlab(X, k, 'Distance', 'sqeuclidean', 'Replicates', 5, 'MaxIter', 300)
+    idx, C, sumd, D = eda_clustering.kmeans_matlab(X, k, 'Distance', 'sqeuclidean', 'Replicates', 5, 'MaxIter', 300)
 
     # Step 2: Create a 2D grid for the feature space
     x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
@@ -285,6 +286,35 @@ def test_kmeans():
 ###################################################################
 ################# TEST MINIMUM SPANNING TREE ######################
 ###################################################################
+def test_minspantree_as_book():
+    # Generate random 2D points with clusters
+    X = np.random.randn(100, 2)
+    X[25:50, :] += 4
+    X[50:75, :] -= 4
+    X[75:100, 0] += 4
+    X[75:100, 1] -= 4
+
+    labels = np.concatenate((
+            np.zeros(25),
+            np.ones(25),
+            2 * np.ones(25),
+            3 * np.ones(25)
+        ))
+
+    # Scatter plot
+    plt.figure(figsize=(8, 6))
+    for i, label in enumerate(np.unique(labels)):
+        plt.scatter(X[labels == label, 0], X[labels == label, 1], label=f"Cluster {int(label)}")
+    plt.title("Input Data")
+    plt.xlabel("X-axis")
+    plt.ylabel("Y-axis")
+    plt.show()
+
+    idx = eda_clustering.mst_clustering(X, 4, plot=True)
+    print('cluster labels: ', idx)
+    
+
+
 def test_minspantree():
     # Create a graph with weighted edges
     G = nx.Graph()
@@ -308,7 +338,7 @@ def test_minspantree():
     plt.title("Original Graph")
 
     # 1) Compute MST using Prim's algorithm (default method)
-    T_prim, pred_prim = eda_cluster.minspantree(G)  # Assuming minspantree implements Prim's by default
+    T_prim, pred_prim = eda_clustering.minspantree(G)  # Assuming minspantree implements Prim's by default
 
     # Visualize MST with Prim's algorithm
     plt.subplot(1, 3, 2)
@@ -318,7 +348,7 @@ def test_minspantree():
     plt.title("MST (Prim's Algorithm)")
 
     # 2) Compute MST using Kruskal's algorithm (Method='sparse')
-    T_kruskal, pred_kruskal = eda_cluster.minspantree(G, 'Method', 'sparse', 'Root', 2, 'Type', 'forest')
+    T_kruskal, pred_kruskal = eda_clustering.minspantree(G, 'Method', 'sparse', 'Root', 2, 'Type', 'forest')
 
     # Visualize MST with Kruskal's algorithm
     plt.subplot(1, 3, 3)
@@ -352,10 +382,10 @@ def test_cophenet():
     Y = pdist(X)
 
     # Step 3: Perform hierarchical clustering with average linkage
-    Z = eda_cluster.linkage(Y, method='average')
+    Z = eda_clustering.linkage(Y, method='average')
 
     # Step 4: Compute cophenetic correlation coefficient
-    c, d = eda_cluster.cophenet(Z, Y)
+    c, d = eda_clustering.cophenet(Z, Y)
 
     # Step 5: Display results
     print("Expected Result: Pairwise distances")
@@ -382,11 +412,11 @@ def test_silhouette():
     labels = np.random.randint(0, 3, size=20)  # 3 clusters
 
     # 1) Use the default (Euclidean) distance and produce a plot
-    s, fig = eda_cluster.silhouette(X, labels)
+    s, fig = eda_clustering.silhouette(X, labels)
     print("Silhouette values:\n", s)
 
     # 2) Minkowski distance with exponent p=3, do not plot
-    s2, _ = eda_cluster.silhouette(X, labels, Distance='minkowski', DistParameter={'p': 3}, do_plot=False)
+    s2, _ = eda_clustering.silhouette(X, labels, Distance='minkowski', DistParameter={'p': 3}, do_plot=False)
     print("Silhouette values with Minkowski distance, p=3:\n", s2)
 
 
@@ -399,7 +429,7 @@ def test_eval_silhouette():
     X = np.vstack([X1, X2, X3])
 
     # Evaluate the silhouette for k=1..6
-    evaluation = eda_cluster.SilhouetteEvaluation(X,
+    evaluation = eda_clustering.SilhouetteEvaluation(X,
                                       clusteringFunction='kmeans',
                                       KList=[1, 2, 3, 4, 5, 6],
                                       Distance='sqEuclidean',
@@ -418,12 +448,13 @@ def test_eval_silhouette():
 
 
 if __name__ == '__main__':
-    test_kmeans_book()
     # test_linkage_with_yeast()
     # test_linkage_with_random()
-    # test_cluster()
+    # test_kmeans_as_book()
     # test_kmeans()
+    test_minspantree_as_book()
     # test_minspantree()
+    # test_cluster()
     # test_cophenet()
     # test_silhouette()
     # test_eval_silhouette()
