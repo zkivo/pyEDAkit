@@ -3,6 +3,9 @@ The project is sponsored by Malmö Universitet developed by Eng. Marco Schivo an
 
 Internal course Code reference: MA661E
 
+## Introduction
+pyEDAkit aims to bring together the most important algorithms and techniques of Exploratory Data Analysis into a single toolbox. It is based on the book Exploratory Data Analysis with MATLAB (Wendy, Angel, Jeffrey) and provides easy-to-use wrappers for the most common techniques along with useful examples.
+
 ## Installation Instructions
 
 To install the `pyEDAkit` package, follow the steps below:
@@ -10,44 +13,41 @@ To install the `pyEDAkit` package, follow the steps below:
 1. **Prerequisites**:  
    Ensure you have Python 3.7 or higher installed. You can download it from [python.org](https://www.python.org/).
 
-2. **Install from this repo (to get latest verison)**:
+2. **Install from this repo (to always get latest verison)**:
    
-   1. **Clone this repository**:
+   Clone this repository:
    ```bash
    cd /your/choosen/root/dir
    git clone https://github.com/zkivo/pyEDAkit.git
    ```
 
-   2. **Install the project**
+   Install the project
    ```bash
    cd pyEDAkit
    pip install .
    ```
 
 
-3. **Install from PyPI**:  
-   Use the following command to install `pyEDAkit`:
-
+3. **Install from PyPI**:
+   Fetch the project from PiPy database:
    ```bash
    pip install pyEDAkit
    ```
 
-   1. **Verify Installation**:  
-      After installation, verify it by running:
+4. Verify Installation:  
 
       ```bash
       python -c "import pyEDAkit; print('pyEDAkit installed successfully!')"
       ```
 
-4. **Upgrade the project**:  
-   To upgrade to the latest version:
+5. **Upgrade the project**:  
 
-   1. **from PiPy**:
+   from PiPy:
    ```bash
    pip install --upgrade pyEDAkit
    ```
 
-   2. **from GitHub**
+   from GitHub
    ```bash
    cd pyEDAkit
    git pull
@@ -58,11 +58,6 @@ You're now ready to use `pyEDAkit`.
 
 ## Warnings
 Please note that this project is still under development and is not yet ready for production use. The code is subject to change, and new features will be added over time. We welcome contributions and feedback from the community to improve the toolkit.
-
-## Overview
-pyEDAkit aims to bring together the most important algorithms and techniques of Exploratory Data Analysis into a single toolbox. It is based on the book Exploratory Data Analysis with MATLAB (Wendy, Angel, Jeffrey) and provides easy-to-use wrappers for the most common techniques along with useful examples.
-
----
 
 ## Features
 
