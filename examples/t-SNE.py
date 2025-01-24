@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
-from mpl_toolkits.mplot3d import Axes3D
 from sklearn.datasets import make_blobs
 
 # Define the function
