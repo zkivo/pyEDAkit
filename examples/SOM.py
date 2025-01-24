@@ -1,12 +1,6 @@
-import matplotlib.pyplot as plt
-import os
-import sys
-import scipy.io
-
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, parent_dir)
-
 from pyEDAkit import nonlinear as eda_nonlin
+import matplotlib.pyplot as plt
+import scipy.io
 
 # Load the MATLAB data
 mat_data = scipy.io.loadmat('datasets/oronsay.mat')

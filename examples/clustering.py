@@ -13,14 +13,7 @@ from scipy.spatial.distance import pdist
 from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import load_iris
 import seaborn as sns
-
 import scipy.io
-import os
-import sys
-
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, parent_dir)
-
 import pyEDAkit.clustering as eda_clustering
 
 ########################################################

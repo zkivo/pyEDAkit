@@ -5,11 +5,11 @@ import pandas as pd
 import sys
 import os
 
-# Add the parent directory to sys.path
+import pyEDAkit.IntrinsicDimensionality as eda_id
+
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 
-import pyEDAkit.IntrinsicDimensionality as eda_id
 from generate_data import generate_1D_helix, generate_3D_helix, generate_scene
 
 """

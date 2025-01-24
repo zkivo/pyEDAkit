@@ -1,12 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_swiss_roll
-import os
-import sys
-
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, parent_dir)
-
 from pyEDAkit import nonlinear as eda_nonlin
 
 def generate_s_curve(N=2000, K=12, d=2):
