@@ -9,8 +9,7 @@ import os
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 
-from pyEDAkit.IntrinsicDimensionality import id_pettis, corr_dim, MLE, \
-    packing_numbers
+import pyEDAkit.IntrinsicDimensionality as eda_id
 from generate_data import generate_1D_helix, generate_3D_helix, generate_scene
 
 """
@@ -45,7 +44,7 @@ _, indices = nbrs.kneighbors(X)
 intrinsic_dimensions = []
 for idx in range(len(X)):
     neighbors = X[indices[idx]]
-    dim = MLE(neighbors)
+    dim = eda_id.MLE(neighbors)
     dim = np.round(dim)
     intrinsic_dimensions.append(dim)
 
@@ -81,37 +80,37 @@ plt.show()
 print('--------- 1D helix ---------')
 X = generate_1D_helix(500, plot=True)
 
-idhat = id_pettis(X)
+idhat = eda_id.id_pettis(X)
 
 print("Pettis:", idhat)
 
-idhat = corr_dim(X)
+idhat = eda_id.corr_dim(X)
 
 print("CorrDim:", idhat)
 
-idhat = MLE(X)
+idhat = eda_id.MLE(X)
 
 print("MLE:", idhat)
 
-idhat = packing_numbers(X)
+idhat = eda_id.packing_numbers(X)
 
 print("PackingNumbers:", idhat)
 
 print('--------- 3D helix ---------')
 X, _ = generate_3D_helix(2000, 0.05, plot=True)
 
-idhat = id_pettis(X)
+idhat = eda_id.id_pettis(X)
 
 print("Pettis:", idhat)
 
-idhat = corr_dim(X)
+idhat = eda_id.corr_dim(X)
 
 print("CorrDim:", idhat)
 
-idhat = MLE(X)
+idhat = eda_id.MLE(X)
 
 print("MLE:", idhat)
 
-idhat = packing_numbers(X)
+idhat = eda_id.packing_numbers(X)
 
 print("PackingNumbers:", idhat)

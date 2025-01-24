@@ -1,8 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from sklearn.manifold import LocallyLinearEmbedding, Isomap, SpectralEmbedding
 from sklearn.datasets import make_swiss_roll
+import os
+import sys
+
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_dir)
+
+from pyEDAkit import nonlinear as eda_nonlin
 
 def generate_s_curve(N=2000, K=12, d=2):
     # Generate true manifold
@@ -32,45 +37,39 @@ def generate_s_curve(N=2000, K=12, d=2):
         np.concatenate([np.sin(angle), 2 - np.sin(angle)])
     ])
 
+    # transpose to (n_samples, n_features)
+    X = X.T
+
     # Scatterplot of sampled data
     fig2 = plt.figure(figsize=(8, 6))
     ax2 = fig2.add_subplot(111, projection='3d')
-    scatter = ax2.scatter(X[0, :], X[1, :], X[2, :], c=np.concatenate([angle, angle]), cmap='jet', marker='+')
+    ax2.scatter(X[:, 0], X[:, 1], X[:, 2], c=np.concatenate([angle, angle]), cmap='jet', marker='+')
     ax2.view_init(12, -20)
     ax2.set_title("Sampled Data")
     plt.show()
 
     # Apply LLE
-    lle = LocallyLinearEmbedding(n_neighbors=K, n_components=d, method='standard')
-    Y_lle = lle.fit_transform(X.T).T
+    Z = eda_nonlin.LLE(X, d, K)
 
     fig3 = plt.figure(figsize=(8, 6))
-    plt.scatter(Y_lle[0, :], Y_lle[1, :], c=np.concatenate([angle, angle]), cmap='jet', marker='+')
+    plt.scatter(Z[:, 0], Z[:, 1], c=np.concatenate([angle, angle]), cmap='jet', marker='+')
     plt.title("LLE Embedding")
-    # plt.xticks([])
-    # plt.yticks([])
     plt.show()
 
     # Apply ISOMAP
-    isomap = Isomap(n_neighbors=K, n_components=d)
-    Y_isomap = isomap.fit_transform(X.T).T
+    Z = eda_nonlin.ISOMAP(X, d, K)
 
     fig4 = plt.figure(figsize=(8, 6))
-    plt.scatter(Y_isomap[0, :], Y_isomap[1, :], c=np.concatenate([angle, angle]), cmap='jet', marker='+')
+    plt.scatter(Z[:, 0], Z[:, 1], c=np.concatenate([angle, angle]), cmap='jet', marker='+')
     plt.title("ISOMAP Embedding")
-    # plt.xticks([])
-    # plt.yticks([])
     plt.show()
 
     # Apply HLLE
-    hlle = LocallyLinearEmbedding(n_neighbors=K, n_components=d, method='hessian')
-    Y_hlle = hlle.fit_transform(X.T).T
+    Z = eda_nonlin.HLLE(X, d, K)
 
     fig5 = plt.figure(figsize=(8, 6))
-    plt.scatter(Y_hlle[0, :], Y_hlle[1, :], c=np.concatenate([angle, angle]), cmap='jet', marker='+')
+    plt.scatter(Z[:, 0], Z[:, 1], c=np.concatenate([angle, angle]), cmap='jet', marker='+')
     plt.title("HLLE Embedding")
-    # plt.xticks([])
-    # plt.yticks([])
     plt.show()
 
 
@@ -81,37 +80,34 @@ def generate_swiss_hole(N=2000, K=12, d=2):
     # Plot Swiss roll with a hole
     fig1 = plt.figure(figsize=(8, 6))
     ax1 = fig1.add_subplot(111, projection='3d')
-    scatter = ax1.scatter(X[:, 0], X[:, 1], X[:, 2], c=t, cmap='jet', marker='+')
+    ax1.scatter(X[:, 0], X[:, 1], X[:, 2], c=t, cmap='jet', marker='+')
     ax1.view_init(12, -20)
     ax1.set_title("Swiss Hole Manifold")
     plt.show()
 
     # Apply LLE
-    lle = LocallyLinearEmbedding(n_neighbors=K, n_components=d, method='standard')
-    Y_lle = lle.fit_transform(X)
+    Z = eda_nonlin.LLE(X, d, K)
 
     fig2 = plt.figure(figsize=(8, 6))
-    plt.scatter(Y_lle[:, 0], Y_lle[:, 1], c=t, cmap='jet', marker='+')
+    plt.scatter(Z[:, 0], Z[:, 1], c=t, cmap='jet', marker='+')
     plt.title("LLE Embedding")
     plt.show()
 
     # Apply ISOMAP
-    isomap = Isomap(n_neighbors=K, n_components=d)
-    Y_isomap = isomap.fit_transform(X)
+    Z = eda_nonlin.ISOMAP(X, d, K)
 
     fig3 = plt.figure(figsize=(8, 6))
-    plt.scatter(Y_isomap[:, 0], Y_isomap[:, 1], c=t, cmap='jet', marker='+')
+    plt.scatter(Z[:, 0], Z[:, 1], c=t, cmap='jet', marker='+')
     plt.title("ISOMAP Embedding")
     plt.show()
 
     # Apply HLLE
-    hlle = LocallyLinearEmbedding(n_neighbors=K, n_components=d, method='hessian', eigen_solver='dense')
-    Y_hlle = hlle.fit_transform(X)
+    Z = eda_nonlin.HLLE(X, d, K)
 
     fig4 = plt.figure(figsize=(8, 6))
-    plt.scatter(Y_hlle[:, 0], Y_hlle[:, 1], c=t, cmap='jet', marker='+')
+    plt.scatter(Z[:, 0], Z[:, 1], c=t, cmap='jet', marker='+')
     plt.title("HLLE Embedding")
     plt.show()
 
-generate_swiss_hole()
 generate_s_curve()
+generate_swiss_hole()
