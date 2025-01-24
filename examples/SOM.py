@@ -1,42 +1,35 @@
-import numpy as np
-import scipy.io
-import pandas as pd
-from matplotlib.patches import RegularPolygon
-from minisom import MiniSom
 import matplotlib.pyplot as plt
+import os
+import sys
+import scipy.io
+
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_dir)
+
+from pyEDAkit import nonlinear as eda_nonlin
 
 # Load the MATLAB data
-mat_data = scipy.io.loadmat('../datasets/oronsay.mat')
+mat_data = scipy.io.loadmat('datasets/oronsay.mat')
 
 # Extract data and labels
 data = mat_data['oronsay']
 midden = mat_data['midden']
-
-# normalize data
 data = (data - data.min(axis=0)) / (data.max(axis=0) - data.min(axis=0))
-
-# Flatten and extract strings from midden
 midden = [item for item in midden.ravel()]
 
-# Initialize and train the SOM
-som_x, som_y = 10, 10  # Define SOM grid size
-som = MiniSom(som_x, som_y, data.shape[1], sigma=1.0, learning_rate=0.5, topology='rectangular', neighborhood_function='gaussian')
-som.random_weights_init(data)
-som.train_random(data, 1000000, verbose=True)  # Number of iterations
+Z, u_matrix = eda_nonlin.SOM(data)
 
-u_matrix = som.distance_map()
-
-# Plot the U-Matrix
+# Plot the U-Matrix (distance matrix)
 plt.figure(figsize=(10, 10))
 plt.title("U-Matrix of the SOM", fontsize=16)
-plt.imshow(u_matrix.T, cmap='coolwarm', interpolation='nearest')
+plt.imshow(u_matrix, cmap='coolwarm', interpolation='nearest')
 plt.colorbar(label='Distance')
-plt.xticks([])
-plt.yticks([])
 
-# Overlay class points on the SOM
-for idx, x in enumerate(data):
-    winner = som.winner(x)
-    plt.text(winner[0], winner[1], str(midden[idx]), color='black', fontsize=8, ha='center', va='center')
+# Visualize the transformed dataset
+plt.figure(figsize=(8, 8))
+plt.scatter(Z[:, 1], Z[:, 0], c='blue', s=50, alpha=0.7)
+plt.title('Data Points Mapped to SOM Grid')
+plt.xlabel('X-axis (Grid)')
+plt.ylabel('Y-axis (Grid)')
 
 plt.show()

@@ -1,7 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.manifold import TSNE
 from sklearn.datasets import make_blobs
+import os
+import sys
+
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_dir)
+
+from pyEDAkit import nonlinear as eda_nonlin
 
 # Define the function
 def generate_and_visualize_clusters():
@@ -29,13 +35,12 @@ def generate_and_visualize_clusters():
     ax.legend()
 
     # Apply T-SNE to reduce dimensions to 2D
-    tsne = TSNE(n_components=2, random_state=42, perplexity=30)
-    X_2d = tsne.fit_transform(X)
+    Z = eda_nonlin.TSNE(X, 2)
 
     # Plot the 2D clusters
     ax2 = fig.add_subplot(122)
     for cluster_idx in np.unique(y):
-        cluster_points_2d = X_2d[y == cluster_idx]
+        cluster_points_2d = Z[y == cluster_idx]
         ax2.scatter(
             cluster_points_2d[:, 0], cluster_points_2d[:, 1],
             label=f'Cluster {cluster_idx}', color=colors[cluster_idx]
