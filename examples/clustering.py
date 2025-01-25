@@ -25,12 +25,15 @@ def test_mojena_plot():
     lungB = scipy.io.loadmat(file_path)
     X = lungB['lungB']
 
+    X = X.T
+
     Z = eda_clustering.linkage(X, method='complete', metric='seuclidean')
     
     plt.figure(figsize=(12, 8))
     dendrogram(Z, truncate_mode='lastp', p=15, leaf_rotation=45, leaf_font_size=10)
     plt.title("Linkage Complete - seuclidean - LungB")
     plt.xlabel("Cluster Index")
+    plt.ylim(40, 60)
     plt.ylabel("Distance")
     plt.show()
 
