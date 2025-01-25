@@ -16,6 +16,23 @@ import seaborn as sns
 import scipy.io
 import pyEDAkit.clustering as eda_clustering
 
+def test_cophenet_with_yeast():    
+    file_path = 'datasets/yeast.mat'
+    yeast = scipy.io.loadmat(file_path)
+
+    X = yeast['data']
+    D = pdist(X)
+
+    # single linkage
+    Z_single = eda_clustering.linkage(X, method='single')
+    cophenet_single, d = eda_clustering.cophenet(Z_single, D)
+    print('cophenet_single: ', cophenet_single)
+
+    # complete linkage
+    Z_complete = eda_clustering.linkage(X, method='complete')
+    cophenet_complete, d = eda_clustering.cophenet(Z_complete, D)
+    print('cophenet_complete: ', cophenet_complete)
+
 def test_rand_index():
     # load iris labels
     iris = load_iris()
@@ -378,7 +395,7 @@ def test_minspantree():
     print("Predecessors (Kruskal):", pred_kruskal)
 
 
-def test_cophenet():
+def test_cophenet_with_random():
     # Step 1: Generate sample data
     np.random.seed(42)
     X = np.vstack([
@@ -456,7 +473,7 @@ def test_eval_silhouette():
 
 
 if __name__ == '__main__':
-    test_rand_index()
+    # test_rand_index()
     # test_linkage_with_yeast()
     # test_linkage_with_random()
     # test_kmeans_as_book()
@@ -464,7 +481,8 @@ if __name__ == '__main__':
     # test_minspantree_as_book()
     # test_minspantree()
     # test_cluster()
-    # test_cophenet()
+    test_cophenet_with_yeast()
+    # test_cophenet_with_random()
     # test_silhouette()
     # test_eval_silhouette()
     pass
