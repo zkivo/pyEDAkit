@@ -16,6 +16,27 @@ import seaborn as sns
 import scipy.io
 import pyEDAkit.clustering as eda_clustering
 
+import numpy as np
+import matplotlib.pyplot as plt
+
+def test_mojena_plot():
+    # Load the yeast dataset
+    file_path = 'datasets/lungB.mat'
+    lungB = scipy.io.loadmat(file_path)
+    X = lungB['lungB']
+
+    Z = eda_clustering.linkage(X, method='complete', metric='seuclidean')
+    
+    plt.figure(figsize=(12, 8))
+    dendrogram(Z, truncate_mode='lastp', p=15, leaf_rotation=45, leaf_font_size=10)
+    plt.title("Linkage Complete - seuclidean - LungB")
+    plt.xlabel("Cluster Index")
+    plt.ylabel("Distance")
+    plt.show()
+
+    # Plot the Mojena Rule graph
+    eda_clustering.mojenaplot(Z, nc=10)
+
 def test_cophenet_with_yeast():    
     file_path = 'datasets/yeast.mat'
     yeast = scipy.io.loadmat(file_path)
@@ -481,8 +502,9 @@ if __name__ == '__main__':
     # test_minspantree_as_book()
     # test_minspantree()
     # test_cluster()
-    test_cophenet_with_yeast()
+    # test_cophenet_with_yeast()
     # test_cophenet_with_random()
+    test_mojena_plot()
     # test_silhouette()
     # test_eval_silhouette()
     pass

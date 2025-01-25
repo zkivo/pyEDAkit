@@ -12,6 +12,40 @@ from sklearn.metrics import silhouette_samples
 import networkx as nx
 import sklearn.metrics as skmetrics
 
+def mojenaplot(Z, nc=10):
+    """
+    Mojena Rule plot for estimating the number of clusters from hierarchical clustering.
+
+    Parameters:
+    Z : ndarray
+        The linkage matrix, as returned by a hierarchical clustering method like scipy's linkage function.
+    nc : int, optional
+        The maximum number of clusters to include. Default is 10.
+    """
+    # Flip the Z matrix
+    Zf = np.flipud(Z)
+    
+    # Initialize arrays for mean and standard deviation calculations
+    abar = []
+    astd = []
+    
+    for i in range(nc):
+        abar.append(np.mean(Zf[i:, 2]))
+        astd.append(np.std(Zf[i:, 2]))
+    
+    # Calculate the y-values for the plot
+    yv = (Zf[:nc, 2] - np.array(abar)) / np.array(astd)
+    xv = np.arange(1, nc + 1)
+    
+    # Plot the Mojena Rule graph
+    plt.figure(figsize=(10, 6))
+    plt.plot(xv, yv, '-o')
+    plt.xlabel('Number of clusters')
+    plt.ylabel('Mojena criterion')
+    plt.title("Mojena Rule Plot")
+    plt.grid()
+    plt.show()
+
 def mst_clustering(X, k, plot=False):
     """
     Perform MST clustering on data X.
