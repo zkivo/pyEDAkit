@@ -16,6 +16,21 @@ import seaborn as sns
 import scipy.io
 import pyEDAkit.clustering as eda_clustering
 
+def test_rand_index():
+    # load iris labels
+    iris = load_iris()
+    X = iris.data
+    y_true = iris.target
+
+    # apply kmeans
+    idx, C, = eda_clustering.kmeans(X, 3)
+
+    print('rand_index: ', 
+        eda_clustering.rand_index(y_true, idx, adjusted=False))
+    print('(Adjusted) rand_index: ', 
+        eda_clustering.rand_index(y_true, idx, adjusted=True))
+
+
 ########################################################
 ############## TEST LINKAGE FUNCTION ###################
 ########################################################
@@ -441,11 +456,12 @@ def test_eval_silhouette():
 
 
 if __name__ == '__main__':
+    test_rand_index()
     # test_linkage_with_yeast()
     # test_linkage_with_random()
     # test_kmeans_as_book()
     # test_kmeans()
-    test_minspantree_as_book()
+    # test_minspantree_as_book()
     # test_minspantree()
     # test_cluster()
     # test_cophenet()

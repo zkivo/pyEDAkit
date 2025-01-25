@@ -10,6 +10,7 @@ from scipy.cluster.hierarchy import cophenet as scipy_cophenet
 import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_samples
 import networkx as nx
+import sklearn.metrics as skmetrics
 
 def mst_clustering(X, k, plot=False):
     """
@@ -256,6 +257,13 @@ def evaluate(P1, P2):
     # P1 first clustering partition
     # P2 second clustering partition
     pass
+
+def rand_index(P1, P2, adjusted=True):
+    if adjusted:
+        return skmetrics.adjusted_rand_score(P1, P2)
+    else:
+        return skmetrics.rand_score(P1, P2)
+
 
 ##############################################################################
 # MATLAB-style cluster function (wrapper around SciPy fcluster)
