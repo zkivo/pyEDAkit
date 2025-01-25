@@ -19,6 +19,23 @@ import pyEDAkit.clustering as eda_clustering
 import numpy as np
 import matplotlib.pyplot as plt
 
+def test_silhouette_as_book():
+    # Load the Iris dataset
+    data = load_iris()
+    X = data.data
+
+    # Perform KMeans clustering wtih 5 replication
+    idx3, C3 = eda_clustering.kmeans(X, 3, init='random', n_init=5)
+    idx4, C4 = eda_clustering.kmeans(X, 4, init='random', n_init=5)
+
+    # The silhouette values are between -1 and 1
+    # The higher the value, the better the clustering for that data point
+    # Around 0 means that the data point is very close to the decision boundary
+    # Below 0 means that the data point is closer to the neighboring cluster
+    eda_clustering.silhouette(X, idx3, plot=True)
+    eda_clustering.silhouette(X, idx4, plot=True)
+
+
 def test_mojena_plot():
     # Load the yeast dataset
     file_path = 'datasets/lungB.mat'
@@ -461,11 +478,11 @@ def test_silhouette():
     labels = np.random.randint(0, 3, size=20)  # 3 clusters
 
     # 1) Use the default (Euclidean) distance and produce a plot
-    s, fig = eda_clustering.silhouette(X, labels)
+    s, fig = eda_clustering.silhouette_matlab(X, labels)
     print("Silhouette values:\n", s)
 
     # 2) Minkowski distance with exponent p=3, do not plot
-    s2, _ = eda_clustering.silhouette(X, labels, Distance='minkowski', DistParameter={'p': 3}, do_plot=False)
+    s2, _ = eda_clustering.silhouette_matlab(X, labels, Distance='minkowski', DistParameter={'p': 3}, do_plot=False)
     print("Silhouette values with Minkowski distance, p=3:\n", s2)
 
 
@@ -499,15 +516,16 @@ def test_eval_silhouette():
 if __name__ == '__main__':
     # test_rand_index()
     # test_linkage_with_yeast()
-    # test_linkage_with_random()
     # test_kmeans_as_book()
-    # test_kmeans()
+    # test_mojena_plot()
     # test_minspantree_as_book()
+    # test_cophenet_with_yeast()
+    test_silhouette_as_book()
+    # test_kmeans()
     # test_minspantree()
     # test_cluster()
-    # test_cophenet_with_yeast()
     # test_cophenet_with_random()
-    test_mojena_plot()
+    # test_linkage_with_random()
     # test_silhouette()
     # test_eval_silhouette()
     pass

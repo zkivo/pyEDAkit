@@ -8,9 +8,57 @@ from sklearn.cluster import KMeans
 from scipy.spatial.distance import cdist
 from scipy.cluster.hierarchy import cophenet as scipy_cophenet
 import matplotlib.pyplot as plt
-from sklearn.metrics import silhouette_samples
+from sklearn.metrics import silhouette_samples, silhouette_score
 import networkx as nx
 import sklearn.metrics as skmetrics
+
+def silhouette(X, labels, plot=False):
+    """
+    Compute the silhouette score for a clustering.
+
+    Parameters
+    ----------
+    X : ndarray
+        The data matrix (n_samples x n_features).
+    labels : ndarray
+        The cluster index of each point (n_samples,).
+    plot : bool, optional
+        Whether to plot the silhouette values. Default is False.
+
+    Returns
+    -------
+    silhouette_avg : float
+        The mean silhouette score for all samples.
+    silhouette_values : ndarray
+        The silhouette score for each sample.
+    """
+    silhouette_avg = silhouette_score(X, labels)
+    silhouette_vals = silhouette_samples(X, labels)
+    if plot:
+        # Plot the silhouette graph
+        plt.figure(figsize=(10, 6))
+        y_lower = 10
+        for i in range(len(np.unique(labels))):
+            # Aggregate the silhouette scores for samples in each cluster
+            ith_cluster_silhouette_vals = silhouette_vals[labels == i]
+            ith_cluster_silhouette_vals.sort()
+            
+            size_cluster_i = ith_cluster_silhouette_vals.shape[0]
+            y_upper = y_lower + size_cluster_i
+
+            plt.fill_betweenx(np.arange(y_lower, y_upper),
+                            0, ith_cluster_silhouette_vals, alpha=0.7)
+            
+            plt.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+            
+            y_lower = y_upper + 10  # 10 for spacing between clusters
+
+        plt.axvline(x=silhouette_avg, color="red", linestyle="--")
+        plt.title("The Silhouette Plot")
+        plt.xlabel("Silhouette coefficient values")
+        plt.ylabel("Cluster label")
+        plt.yticks([])
+        plt.show()
 
 def mojenaplot(Z, nc=10):
     """
@@ -130,7 +178,7 @@ def mst_clustering(X, k, plot=False):
 
     return cluster_labels
 
-def kmeans(X, k):
+def kmeans(X, k, *args, **kwargs):
     """
     Perform k-means clustering on data X.
 
@@ -139,6 +187,7 @@ def kmeans(X, k):
     X : ndarray
         The data matrix (n_samples x n_features).
     k : int
+        Number of clusters.
 
     Returns
     -------
@@ -149,7 +198,7 @@ def kmeans(X, k):
         The cluster centers (k x n_features).
     """
 
-    kmeans = KMeans(n_clusters=k)
+    kmeans = KMeans(n_clusters=k, **kwargs)
     idx = kmeans.fit_predict(X)
     return idx, kmeans.cluster_centers_
 
@@ -1006,7 +1055,7 @@ def cophenet(Z, Y):
     return c, d
 
 
-def silhouette(X, clust, Distance='euclidean', DistParameter=None,
+def silhouette_matlab(X, clust, Distance='euclidean', DistParameter=None,
                do_plot=True):
     """
     Silhouette plot and values, mimicking MATLAB's silhouette function.
