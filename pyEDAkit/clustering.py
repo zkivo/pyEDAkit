@@ -9,8 +9,31 @@ from scipy.spatial.distance import cdist
 from scipy.cluster.hierarchy import cophenet as scipy_cophenet
 import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_samples, silhouette_score
+from sklearn.cluster import SpectralClustering
 import networkx as nx
 import sklearn.metrics as skmetrics
+
+def spectral(X, k):
+    """
+    Perform spectral clustering on data X.
+    The affinity matrix is constructed using an RBF kernel as 
+    in the book.
+
+    Parameters
+    ----------
+    X : ndarray
+        The data matrix (n_samples x n_features).
+    k : int
+        Number of clusters.
+    
+    Returns
+    -------
+    idx : ndarray
+        The cluster index of each point (n_samples,).
+    """
+    sc = SpectralClustering(n_clusters=k, affinity='rbf', random_state=0)
+    return sc.fit_predict(X)
+
 
 def silhouette(X, labels, plot=False):
     """

@@ -15,9 +15,45 @@ from sklearn.datasets import load_iris
 import seaborn as sns
 import scipy.io
 import pyEDAkit.clustering as eda_clustering
-
 import numpy as np
 import matplotlib.pyplot as plt
+
+def test_spectral_clustering():
+    # Generate datasets
+    np.random.seed(0)  # For reproducibility
+    mu1 = [2, 2]
+    cov1 = np.eye(2)  # Identity matrix
+    mu2 = [-1, -1]
+    cov2 = [[1, 0.9], [0.9, 1]]
+
+    X1 = np.random.multivariate_normal(mu1, cov1, 100)
+    X2 = np.random.multivariate_normal(mu2, cov2, 100)
+
+    # Concatenate datasets
+    X = np.vstack((X1, X2))
+
+    # Ground truth classes
+    ground_truth = np.array([0] * 100 + [1] * 100)
+
+    # Plot and save the ground truth
+    plt.figure(figsize=(8, 6))
+    plt.scatter(X1[:, 0], X1[:, 1], c='blue', marker='.', label='Class 1')
+    plt.scatter(X2[:, 0], X2[:, 1], c='red', marker='+', label='Class 2')
+    plt.title("Ground Truth Classes")
+    plt.legend()
+    plt.show()
+
+    # Perform spectral clustering
+    clusters = eda_clustering.spectral(X, 2)
+
+    # Plot spectral clustering results
+    plt.figure(figsize=(8, 6))
+    plt.scatter(X[clusters == 0, 0], X[clusters == 0, 1], c='green', marker='*', label='Cluster 1')
+    plt.scatter(X[clusters == 1, 0], X[clusters == 1, 1], c='purple', marker='x', label='Cluster 2')
+    plt.title("Spectral Clustering Results")
+    plt.legend()
+    plt.show()
+
 
 def test_silhouette_as_book():
     # Load the Iris dataset
@@ -514,13 +550,14 @@ def test_eval_silhouette():
 
 
 if __name__ == '__main__':
+    test_spectral_clustering()
     # test_rand_index()
     # test_linkage_with_yeast()
     # test_kmeans_as_book()
     # test_mojena_plot()
     # test_minspantree_as_book()
     # test_cophenet_with_yeast()
-    test_silhouette_as_book()
+    # test_silhouette_as_book()
     # test_kmeans()
     # test_minspantree()
     # test_cluster()
