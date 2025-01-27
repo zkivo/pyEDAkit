@@ -15,8 +15,79 @@ from sklearn.datasets import load_iris
 import seaborn as sns
 import scipy.io
 import pyEDAkit.clustering as eda_clustering
+import pyEDAkit.linear as eda_lin
 import numpy as np
 import matplotlib.pyplot as plt
+
+def test_documents_clustering_with_NMF():
+    import numpy as np
+    from sklearn.decomposition import NMF
+    import matplotlib.pyplot as plt
+
+    # Load the MATLAB file
+    file_path = 'datasets/nmfclustex.mat'
+    data = scipy.io.loadmat(file_path)
+
+    # Inspect the contents of 'nmfclustex'
+    X = data['nmfclustex']
+    print(X.shape)
+
+    words = [
+        "human", "interface", "computer", "user", "system", 
+        "response", "time", "EPS", "survey", "trees", "graph", "minors"
+    ]
+
+    document_titles = [
+        "Human machine interface for Lab ABC computer applications",
+        "A survey of user opinion of computer system response time",
+        "The EPS user interface management system",
+        "System and human system engineering testing of EPS",
+        "Relation of user-perceived response time to error measurement",
+        "The generation of random, binary, unordered trees",
+        "The intersection graph of paths in trees",
+        "Graph minors IV: Widths of trees and well-quasi-ordering",
+        "Graph minors: A survey"
+    ]
+
+    documents = [f"d{i}" for i in range(1, 10)]
+    original_df = pd.DataFrame(data['nmfclustex'], index=words, columns=documents)
+
+    print("Original Document Matrix:")
+    print(original_df)
+
+    X = X.astype(float)
+    X = X / X.sum(axis=0)
+
+    U, V = eda_lin.NMF(X, 2)
+
+    # Step 3: Normalize U and V using the formulas
+    U_normalized = U / np.sqrt(np.sum(U**2, axis=0))
+    V_normalized = V * np.sqrt(np.sum(U**2, axis=0)[:, np.newaxis])
+
+    print(V_normalized.T)
+
+    clusters = np.argmax(V_normalized.T, axis=1)  # Assign clusters based on the max in each row
+
+    print(clusters)
+
+    v1, v2 = V_normalized[0, :], V_normalized[1, :]
+    cluster_colors = ['blue', 'green']  # Colors for clusters 0 and 1
+
+    # Create a scatter plot of the normalized V matrix with cluster-based colors
+    plt.figure(figsize=(8, 6))
+    for i, doc in enumerate(documents):
+        cluster_color = cluster_colors[clusters[i]]  # Color based on cluster assignment
+        plt.scatter(v1[i], v2[i], marker='x', color=cluster_color, s=200, label=document_titles[i])
+        plt.text(v1[i] + 0.02, v2[i] + 0.02, doc, fontsize=10, color=cluster_color)
+    # Add plot details
+    plt.title("Document Clustering Based on NMF")
+    plt.xlabel("V1")
+    plt.ylabel("V2")
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=8)
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
 
 def test_spectral_clustering():
     # Generate datasets
@@ -550,7 +621,8 @@ def test_eval_silhouette():
 
 
 if __name__ == '__main__':
-    test_spectral_clustering()
+    test_documents_clustering_with_NMF()
+    # test_spectral_clustering()
     # test_rand_index()
     # test_linkage_with_yeast()
     # test_kmeans_as_book()

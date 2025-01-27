@@ -8,6 +8,26 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.random_projection import GaussianRandomProjection
 
 def PCA(X, d, covariance = True, plot = False):
+    """
+    Principal Component Analysis
+
+    Parameters
+    ----------
+    X : numpy.ndarray
+        The data matrix (n_samples, n_features).
+    d : int
+        The number of components to reduce to.
+    covariance : bool
+        Whether to use the covariance matrix or the correlation matrix.
+    plot : bool
+        Whether to plot the scree plot.
+    
+    Returns
+    -------
+    Z : numpy.ndarray
+        The reduced data matrix.
+    """
+
     X_mean = X.mean(axis=0)
     X = X - X_mean
     S = None
@@ -39,6 +59,25 @@ def PCA(X, d, covariance = True, plot = False):
     return Z
 
 def SVD(X, plot = False):
+    """
+    Singular Value Decomposition
+
+    Parameters
+    ----------
+    X : numpy.ndarray
+        The data matrix (n_samples, n_features).
+    plot : bool
+        Whether to plot the singular values.
+
+    Returns
+    -------
+    U : numpy.ndarray
+        The left singular vectors.
+    S : numpy.ndarray
+        The singular values.
+    Vt : numpy.ndarray
+        The right singular vectors.
+    """
     # It provides a way to find the PCs without explicitly calculating 
     #   the covariance matrix.
     # The plot of the singular values is similar to the scree plot in PCA.
@@ -57,6 +96,26 @@ def SVD(X, plot = False):
     return U, S, Vt
 
 def NMF(X, d, plot = False):
+    """
+    Non-negative Matrix Factorization
+    
+    Parameters
+    ----------
+    X : numpy.ndarray
+        The data matrix (n_samples, n_features).
+    d : int
+        The number of components to reduce to.
+    plot : bool
+        Whether to plot the component norms.
+
+    Returns
+    -------
+    W : numpy.ndarray
+        The basis matrix.
+    H : numpy.ndarray
+        The coefficient matrix.
+    """
+
     # is X non-negative?
     if np.any(X < 0):
         print('Error: X contains negative values.')
@@ -79,6 +138,23 @@ def NMF(X, d, plot = False):
     return W, H
 
 def FA(X, d, plot = False):
+    """
+    Factor Analysis
+    
+    Parameters
+    ----------
+    X : numpy.ndarray
+        The data matrix (n_samples, n_features).
+    d : int
+        The number of components to reduce to.
+    plot : bool
+        Whether to plot the scatter plot of the factors.
+
+    Returns
+    -------
+    Z : numpy.ndarray
+        The reduced data matrix.    
+    """
     fa = FactorAnalysis(n_components=d)
     Z = fa.fit_transform(X)
 
@@ -92,6 +168,23 @@ def FA(X, d, plot = False):
     return Z
 
 def LDA(X, y, plot = False):
+    """
+    Linear Discriminant Analysis
+
+    Parameters
+    ----------
+    X : numpy.ndarray
+        The data matrix (n_samples, n_features).
+    y : numpy.ndarray
+        The class labels.
+    plot : bool
+        Whether to plot the KDE of the LDA components.
+
+    Returns
+    -------
+    Z : numpy.ndarray
+        The reduced data matrix.
+    """
     lda = LinearDiscriminantAnalysis(n_components=1)  # Reduce to 1 dimensions
     Z = lda.fit_transform(X, y)
 
@@ -131,6 +224,23 @@ def LDA(X, y, plot = False):
     return Z
 
 def RandProj(X, d, plot = False):
+    """
+    Random Projection
+
+    Parameters
+    ----------
+    X : numpy.ndarray
+        The data matrix (n_samples, n_features).
+    d : int
+        The number of components to reduce to.
+    plot : bool
+        Whether to plot the pairplot of the reduced data.
+
+    Returns
+    -------
+    Z : numpy.ndarray
+        The reduced data matrix.
+    """
     rp = GaussianRandomProjection(n_components=d, random_state=42)
     Z = rp.fit_transform(X)
 
