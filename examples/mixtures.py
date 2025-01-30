@@ -4,8 +4,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.mixture import GaussianMixture
+from scipy.stats import multivariate_normal
+from itertools import combinations
 
-def genmix(num_samples, num_components, family, pie, mu, l, B = None, D= None, A = None, plot = False):
+def genmix(num_samples, n_components, family, pie, mu, l, B = None, D= None, A = None, plot = False):
     """
     Returns random samples from a Gaussian Mixture Model.
     The arguments of this function specifies the shape of the mixture
@@ -24,8 +26,8 @@ def genmix(num_samples, num_components, family, pie, mu, l, B = None, D= None, A
     ----------
     num_samples : int
         The number of samples to generate.
-    num_components : int
-        The number of components (Normals) to consider.
+    n_components : int
+        The number of components (Normal functions) to consider.
     family : str
         The family of the covariance matrices. It can be 'spherical',
         'diagonal' or 'general'.
@@ -52,21 +54,23 @@ def genmix(num_samples, num_components, family, pie, mu, l, B = None, D= None, A
     Raises
     ------
     ValueError
-        If num_components is not a positive integer.
+        If n_components is not a positive integer.
         If num_samples is not a positive integer.
         If family is not 'spherical', 'diagonal' or 'general'.
         If pie, mu, l, B, D, A lists are not same size.
     
     Returns
     -------
-    numpy.ndarray
-        The generated samples.
+    numpy.ndarray 
+        The generated samples (n_samples, n_features).
+    sigma : list
+        The covariance matrices of the components.
 
     """
 
-    # check if num_components is a positive integer
-    if not isinstance(num_components, int) or num_components < 0:
-        raise ValueError('num_components must be a positive integer. ' \
+    # check if n_components is a positive integer
+    if not isinstance(n_components, int) or n_components < 0:
+        raise ValueError('n_components must be a positive integer. ' \
                          'It is the number of components to consider.')
 
     # check if sample is a positive integer
@@ -89,7 +93,7 @@ def genmix(num_samples, num_components, family, pie, mu, l, B = None, D= None, A
                             'Each element in position i corresponds to a ' \
                             'matrix or value of the component of ' \
                             'position i.')
-        for i in range(num_components):
+        for i in range(n_components):
             sigma.append(l[i] * np.eye(dimensions))
     elif family == 'diagonal':
         # check if pie, mu, l, B lists are same size
@@ -98,7 +102,7 @@ def genmix(num_samples, num_components, family, pie, mu, l, B = None, D= None, A
                             'Each element in position i corresponds to a ' \
                             'matrix or value of the component of ' \
                             'position i.')
-        for i in range(num_components):
+        for i in range(n_components):
             sigma.append(l[i] * B[i])
     elif family == 'general':
         # check if pie, mu, l, A, D lists are same size
@@ -107,13 +111,13 @@ def genmix(num_samples, num_components, family, pie, mu, l, B = None, D= None, A
                             'Each element in position i corresponds to a ' \
                             'matrix or value of the component of ' \
                             'position i.')
-        for i in range(num_components):
+        for i in range(n_components):
             sigma.append(l[i] * D[i] @ A[i] @ D[i].T)
     else:
         raise ValueError('Error: Uknown family :c')
     
     # Initialize Gaussian Mixture Model (without fitting)
-    gmm = GaussianMixture(n_components=num_components, covariance_type='full')
+    gmm = GaussianMixture(n_components=n_components, covariance_type='full')
 
     # Manually set parameters
     gmm.means_ = np.array(mu)
@@ -132,10 +136,87 @@ def genmix(num_samples, num_components, family, pie, mu, l, B = None, D= None, A
         sns.pairplot(df, diag_kind="hist", plot_kws={"alpha": 0.5})
         plt.show()
 
-    return samples
+    return samples, sigma
+
+def mbcfinmix(X, n_components=2, family='general', plot=False):
+    """
+    Estimates a Gaussian Mixture Model using the EM algorithm.
+    
+    Parameters:
+    -----------
+    X : numpy array
+        The dataset (n_samples, n_features)
+    n_components : int
+        The number of Gaussian components.
+    family : str
+        The family of the covariance matrices. It can be 'spherical',
+        'diagonal' or 'general'.
+    plot : bool
+        Whether to plot the 3D probability density function for all pairs of dimensions.
+
+    Raises:
+    -------
+    ValueError
+        If family is not 'spherical', 'diagonal' or 'general'.
+
+    Returns:
+    --------
+    weights : numpy array
+        The weights of each Gaussian component.
+    means : numpy array
+        The means of each Gaussian component.
+    covariances : numpy array
+        The covariance matrices of each Gaussian component.
+    """
+
+    # check if family is either 'spherical', 'diagonal' or 'general'
+    family = family.lower()
+    if family not in ['spherical', 'diagonal', 'general']:
+        raise ValueError('family must be either "spherical", ' \
+                         '"diagonal" or "general"')
+
+    if family == 'spherical':
+        family = 'spherical'
+    elif family == 'diagonal':
+        family = 'diag'
+    elif family == 'general':
+        family = 'full'
+    else:
+        raise ValueError('Error: Uknown family :c')
+
+    gmm = GaussianMixture(n_components=n_components, covariance_type=family, random_state=42, tol=1e-6, max_iter=1000, n_init=100)
+    gmm.fit(X)
+    
+    # Plots the 3D probability density function for all pairs of dimensions.
+    if plot:
+        n_features = X.shape[1]
+        pairs = list(combinations(range(n_features), 2))
+        for i, (dim1, dim2) in enumerate(pairs):
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            
+            x = np.linspace(X[:, dim1].min(), X[:, dim1].max(), 100)
+            y = np.linspace(X[:, dim2].min(), X[:, dim2].max(), 100)
+            X_grid, Y_grid = np.meshgrid(x, y)
+            pos = np.dstack((X_grid, Y_grid))
+            
+            Z = np.zeros(X_grid.shape)
+            for w, mean, cov in zip(gmm.weights_, gmm.means_, gmm.covariances_):
+                mean_2d = mean[[dim1, dim2]]
+                cov_2d = cov[np.ix_([dim1, dim2], [dim1, dim2])]
+                rv = multivariate_normal(mean_2d, cov_2d)
+                Z += w * rv.pdf(pos)
+            
+            ax.plot_surface(X_grid, Y_grid, Z, cmap='viridis', alpha=1)
+            ax.set_xlabel(f'Feature {dim1}')
+            ax.set_ylabel(f'Feature {dim2}')
+            ax.set_zlabel('Density')
+            plt.title(f'3D Density Plot for Features {dim1} and {dim2}')
+            plt.show()
+
+    return gmm.weights_, gmm.means_, gmm.covariances_
 
 if __name__ == '__main__':
-    
     # Spherical example
     pie = [0.7, 0.3]
     mu = [np.array([2, 2, 2]), np.array([-2, -2, -2])]
@@ -170,5 +251,10 @@ if __name__ == '__main__':
     D2 = [[ math.cos(6.0 * math.pi / 8.0),  math.sin(6.0 * math.pi / 8.0)],
           [-math.sin(6.0 * math.pi / 8.0),  math.cos(6.0  *math.pi / 8.0)]]
     D = [np.array(D1), np.array(D2)]
-    genmix(250, 2, 'general', pie, mu, l, A=A, D=D, plot=True)
+    X, sigma = genmix(250, 2, 'general', pie, mu, l, A=A, D=D, plot=True)
 
+    # Apply EM algorithm to estimate weights, means and covariances
+    weights, means, covariances = mbcfinmix(X, n_components=2, family='general', plot=True)
+    print("diff weights:", weights - np.array(pie))
+    print("diff means:", means - np.array(mu))
+    print("diff covariances:", covariances - np.array(sigma))
