@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.mixture import GaussianMixture
 
-def genmix(num_samples, num_components, family, pie, mu, l, B = None, D= None, A = None):
+def genmix(num_samples, num_components, family, pie, mu, l, B = None, D= None, A = None, plot = False):
     """
     Returns random samples from a Gaussian Mixture Model.
     The arguments of this function specifies the shape of the mixture
@@ -19,6 +19,48 @@ def genmix(num_samples, num_components, family, pie, mu, l, B = None, D= None, A
     position i. Therefore, they must have same size, and the size corresponds
     to the number of components of the mixture (i.e. the number of 
     distribution used).
+
+    Parameters
+    ----------
+    num_samples : int
+        The number of samples to generate.
+    num_components : int
+        The number of components (Normals) to consider.
+    family : str
+        The family of the covariance matrices. It can be 'spherical',
+        'diagonal' or 'general'.
+    pie : list
+        The weights of the components. The sum of the weights must be 1.
+        pie[i] is the probability that component i is selected as distribution.
+    mu : list
+        The means of the components. mu[i] is the mean of the component i.
+    l : list
+        Lambda. The scaling factors of the components. 
+        l[i] is the scaling factor of the component i.
+    B : list
+        The diagonal matrices of the components. B[i] is the diagonal matrix
+        of the component i. It is only used when family is 'diagonal'.
+    D : list
+        The diagonal matrices of the components. D[i] is the diagonal matrix
+        of the component i. It is only used when family is 'general'.
+    A : list
+        The diagonal matrices of the components. A[i] is the diagonal matrix
+        of the component i. It is only used when family is 'general'.
+    plot : bool
+        Whether to plot the samples.
+
+    Raises
+    ------
+    ValueError
+        If num_components is not a positive integer.
+        If num_samples is not a positive integer.
+        If family is not 'spherical', 'diagonal' or 'general'.
+        If pie, mu, l, B, D, A lists are not same size.
+    
+    Returns
+    -------
+    numpy.ndarray
+        The generated samples.
 
     """
 
@@ -39,7 +81,7 @@ def genmix(num_samples, num_components, family, pie, mu, l, B = None, D= None, A
                          '"diagonal" or "general"')
 
     dimensions = len(mu[0])
-    sigma = []
+    sigma = [] # convariances
     if family == 'spherical':
         # check if pie, mu, l, lists are same size
         if not len(pie) == len(mu) == len(l):
@@ -86,9 +128,11 @@ def genmix(num_samples, num_components, family, pie, mu, l, B = None, D= None, A
     # Convert to DataFrame for seaborn
     df = pd.DataFrame(samples, columns=[f"Dim {i+1}" for i in range(samples.shape[1])])
 
-    # Plot scatter matrix
-    sns.pairplot(df, diag_kind="hist", plot_kws={"alpha": 0.5})
-    plt.show()
+    if plot:
+        sns.pairplot(df, diag_kind="hist", plot_kws={"alpha": 0.5})
+        plt.show()
+
+    return samples
 
 if __name__ == '__main__':
     
@@ -96,7 +140,7 @@ if __name__ == '__main__':
     pie = [0.7, 0.3]
     mu = [np.array([2, 2, 2]), np.array([-2, -2, -2])]
     l = [1, 2]
-    genmix(250, 2, 'spherical', pie, mu, l)
+    genmix(250, 2, 'spherical', pie, mu, l, plot=True)
 
     # diagonal example
     pie = [0.7, 0.3]
@@ -107,7 +151,7 @@ if __name__ == '__main__':
     B2 = [[float(1/2), 0],
           [0,          2]]
     B = [np.array(B1), np.array(B2)]
-    genmix(250, 2, 'diagonal', pie, mu, l, B=B)
+    genmix(250, 2, 'diagonal', pie, mu, l, B=B, plot=True)
 
     # general example
     pie = [0.7, 0.3]
@@ -126,5 +170,5 @@ if __name__ == '__main__':
     D2 = [[ math.cos(6.0 * math.pi / 8.0),  math.sin(6.0 * math.pi / 8.0)],
           [-math.sin(6.0 * math.pi / 8.0),  math.cos(6.0  *math.pi / 8.0)]]
     D = [np.array(D1), np.array(D2)]
-    genmix(250, 2, 'general', pie, mu, l, A=A, D=D)
+    genmix(250, 2, 'general', pie, mu, l, A=A, D=D, plot=True)
 
