@@ -16,10 +16,10 @@ from generate_data import generate_1D_helix, generate_3D_helix, generate_scene
 --------- Scene ---------
 Intrinsic Dimension Percentage Table:
    Intrinsic Dimension  Count  Percentage (%)
-                   1.0   3881       64.683333
-                   2.0   1144       19.066667
-                   3.0    974       16.233333
-                   4.0      1        0.016667
+                   1.0   3937       65.616667
+                   2.0   1053       17.550000
+                   3.0    973       16.216667
+                   4.0     37        0.616667
 --------- 1D helix ---------
 Pettis: 1.1188611882299895
 CorrDim: 1.0519154515473388
