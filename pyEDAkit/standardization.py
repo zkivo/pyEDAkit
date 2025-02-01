@@ -1,10 +1,10 @@
 import numpy as np
 
-def with_std_dev(data : np.ndarray, zero_mean=True):
+def with_std_dev(data : np.ndarray, with_mean=True):
     z_scores = None
     stds_data  = np.std(data, axis=0)
     means_data = np.mean(data, axis=0)
-    if zero_mean:
+    if with_mean:
         #  z_score variables will have:
         #  mean = 0
         #  variance = 1

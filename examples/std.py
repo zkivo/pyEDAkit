@@ -53,18 +53,16 @@ scatter_plot(df['sepal_length'], df['petal_length'], y,
              title='Original data',
              class_names=y_names)
 
-# -------------------
-# z-scores zero-mean
-# -------------------
-print("-------------------")
-print("z-scores zero-mean")
-print("-------------------")
-z_scores_zero_mean = eda_std.with_std_dev(sp_df, zero_mean=True)
 
-scaler = StandardScaler()  # defaults to zero-mean, unit-variance
+print("-------------------")
+print("z-scores with-mean")
+print("-------------------")
+z_scores_zero_mean = eda_std.with_std_dev(sp_df, with_mean=True)
+
+scaler = StandardScaler()
 scaled_data = scaler.fit_transform(sp_df)
 
-print('Is z_scores_zero_mean allclose to sklearn:',
+print('Is z_scores_with_mean allclose to sklearn:',
       np.allclose(scaled_data, z_scores_zero_mean))
 print("std: ", np.std(z_scores_zero_mean, axis=0),
       "\nmean: ", np.mean(z_scores_zero_mean, axis=0))
@@ -75,18 +73,16 @@ scatter_plot(z_scores_zero_mean[:, 0],
              title='z-scores with mean 0',
              class_names=y_names)
 
-# -------------------
-# z-scores NOT zero-mean
-# -------------------
+
 print("-------------------")
-print("z-scores NOT zero-mean")
+print("z-scores with 0")
 print("-------------------")
-z_scores_not_zero_mean = eda_std.with_std_dev(sp_df, zero_mean=False)
+z_scores_not_zero_mean = eda_std.with_std_dev(sp_df, with_mean=False)
 
 scaler_no_mean = StandardScaler(with_mean=False)
 scaled_data_no_mean = scaler_no_mean.fit_transform(sp_df)
 
-print('Is z_scores_not_zero_mean allclose to sklearn:',
+print('Is z_scores_without_mean allclose to sklearn:',
       np.allclose(scaled_data_no_mean, z_scores_not_zero_mean))
 print("std: ", np.std(z_scores_not_zero_mean, axis=0),
       "\nmean: ", np.mean(z_scores_not_zero_mean, axis=0))
@@ -97,9 +93,6 @@ scatter_plot(z_scores_not_zero_mean[:, 0],
              title='z-scores with NOT mean 0',
              class_names=y_names)
 
-# -------------------
-# min-max normalization
-# -------------------
 print("-------------------")
 print("min-max normalization")
 print("-------------------")
@@ -118,9 +111,6 @@ scatter_plot(Z_minmax[:, 0],
              title='min-max normalization',
              class_names=y_names)
 
-# -------------------
-# Sphering
-# -------------------
 print("-------------------")
 print("Sphering")
 print("-------------------")

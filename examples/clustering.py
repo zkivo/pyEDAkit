@@ -16,6 +16,7 @@ import seaborn as sns
 import scipy.io
 import pyEDAkit.clustering as eda_clustering
 import pyEDAkit.linear as eda_lin
+import pyEDAkit.standardization as eda_std
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -339,15 +340,15 @@ def test_kmeans_as_book():
     df = pd.DataFrame(iris.data, columns=iris.feature_names)
     df['target'] = iris.target
 
-    # Apply K-Means clustering with 3 clusters
-    scaler = StandardScaler()
-    data = scaler.fit_transform(df.iloc[:, :-1])  # Scale the features
+    data = eda_std.with_std_dev(df.iloc[:, :-1].to_numpy())
 
     # idx contains the cluster labels, C contains the cluster centers
     idx, C = eda_clustering.kmeans(data, 3)
     df['cluster'] = idx
 
     # Add cluster centers to the DataFrame for visualization
+    scaler = StandardScaler()
+    scaler.fit_transform(df.iloc[:, :-2])
     cluster_centers = scaler.inverse_transform(C)
     cluster_centers_df = pd.DataFrame(cluster_centers, columns=iris.feature_names)
     cluster_centers_df['cluster'] = ['Center 1', 'Center 2', 'Center 3']
@@ -621,11 +622,11 @@ def test_eval_silhouette():
 
 
 if __name__ == '__main__':
-    test_documents_clustering_with_NMF()
+    # test_documents_clustering_with_NMF()
     # test_spectral_clustering()
     # test_rand_index()
     # test_linkage_with_yeast()
-    # test_kmeans_as_book()
+    test_kmeans_as_book()
     # test_mojena_plot()
     # test_minspantree_as_book()
     # test_cophenet_with_yeast()
