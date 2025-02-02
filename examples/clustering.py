@@ -22,14 +22,9 @@ import matplotlib.pyplot as plt
 
 def test_documents_clustering_with_NMF():
     import numpy as np
-    from sklearn.decomposition import NMF
     import matplotlib.pyplot as plt
 
-    # Load the MATLAB file
-    file_path = 'datasets/nmfclustex.mat'
-    data = scipy.io.loadmat(file_path)
-
-    # Inspect the contents of 'nmfclustex'
+    data = scipy.io.loadmat('datasets/nmfclustex.mat')
     X = data['nmfclustex']
     print(X.shape)
 
@@ -61,15 +56,15 @@ def test_documents_clustering_with_NMF():
 
     U, V = eda_lin.NMF(X, 2)
 
-    # Step 3: Normalize U and V using the formulas
+    # Normalize U and V using the formulas from the book
     U_normalized = U / np.sqrt(np.sum(U**2, axis=0))
     V_normalized = V * np.sqrt(np.sum(U**2, axis=0)[:, np.newaxis])
 
     print(V_normalized.T)
 
-    clusters = np.argmax(V_normalized.T, axis=1)  # Assign clusters based on the max in each row
+    idx = np.argmax(V_normalized.T, axis=1)  # Assign clusters based on the max in each row
 
-    print(clusters)
+    print(idx)
 
     v1, v2 = V_normalized[0, :], V_normalized[1, :]
     cluster_colors = ['blue', 'green']  # Colors for clusters 0 and 1
@@ -77,7 +72,7 @@ def test_documents_clustering_with_NMF():
     # Create a scatter plot of the normalized V matrix with cluster-based colors
     plt.figure(figsize=(8, 6))
     for i, doc in enumerate(documents):
-        cluster_color = cluster_colors[clusters[i]]  # Color based on cluster assignment
+        cluster_color = cluster_colors[idx[i]]  # Color based on cluster assignment
         plt.scatter(v1[i], v2[i], marker='x', color=cluster_color, s=200, label=document_titles[i])
         plt.text(v1[i] + 0.02, v2[i] + 0.02, doc, fontsize=10, color=cluster_color)
     # Add plot details
@@ -116,12 +111,12 @@ def test_spectral_clustering():
     plt.show()
 
     # Perform spectral clustering
-    clusters = eda_clustering.spectral(X, 2)
+    idx = eda_clustering.spectral(X, 2)
 
     # Plot spectral clustering results
     plt.figure(figsize=(8, 6))
-    plt.scatter(X[clusters == 0, 0], X[clusters == 0, 1], c='green', marker='*', label='Cluster 1')
-    plt.scatter(X[clusters == 1, 0], X[clusters == 1, 1], c='purple', marker='x', label='Cluster 2')
+    plt.scatter(X[idx == 0, 0], X[idx == 0, 1], c='green', marker='*', label='Cluster 1')
+    plt.scatter(X[idx == 1, 0], X[idx == 1, 1], c='purple', marker='x', label='Cluster 2')
     plt.title("Spectral Clustering Results")
     plt.legend()
     plt.show()
@@ -626,9 +621,9 @@ if __name__ == '__main__':
     # test_spectral_clustering()
     # test_rand_index()
     # test_linkage_with_yeast()
-    test_kmeans_as_book()
+    # test_kmeans_as_book()
     # test_mojena_plot()
-    # test_minspantree_as_book()
+    test_minspantree_as_book()
     # test_cophenet_with_yeast()
     # test_silhouette_as_book()
     # test_kmeans()
