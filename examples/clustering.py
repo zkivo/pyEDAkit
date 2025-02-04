@@ -144,7 +144,6 @@ def test_mojena_plot():
     file_path = 'datasets/lungB.mat'
     lungB = scipy.io.loadmat(file_path)
     X = lungB['lungB']
-
     X = X.T
 
     Z = eda_clustering.linkage(X, method='complete', metric='seuclidean')
@@ -622,8 +621,8 @@ if __name__ == '__main__':
     # test_rand_index()
     # test_linkage_with_yeast()
     # test_kmeans_as_book()
-    # test_mojena_plot()
-    test_minspantree_as_book()
+    test_mojena_plot()
+    # test_minspantree_as_book()
     # test_cophenet_with_yeast()
     # test_silhouette_as_book()
     # test_kmeans()
